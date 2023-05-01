@@ -7,12 +7,30 @@ import { Dropzone, ExtFile, FileMosaic } from "@files-ui/react";
 import JSZip from "jszip";
 import CryptoJS from "crypto-js";
 import { generateVaultFile } from "@/utils/vaultAssembly";
+import PasswordValidator from "password-validator";
 
 const inter = Inter({ subsets: ["latin"] });
+
+const passwordSchema = new PasswordValidator();
+passwordSchema
+  .is()
+  .min(8) // Minimum length 8
+  .is()
+  .max(100) // Maximum length 100
+  .has()
+  .uppercase() // Must have uppercase letters
+  .has()
+  .lowercase() // Must have lowercase letters
+  .has()
+  .digits(2) // Must have at least 2 digits
+  .has()
+  .not()
+  .spaces();
 
 export default function Home() {
   const passwordInput = React.useRef<HTMLInputElement>(null);
   const confirmPasswordInput = React.useRef<HTMLInputElement>(null);
+  const passwordZone = React.useRef<HTMLInputElement>(null);
 
   const [files, setFiles] = React.useState<ExtFile[]>([]);
 
@@ -44,14 +62,38 @@ export default function Home() {
     document.body.removeChild(element);
   }
 
-  const encryptAndDownload = async () => {
+  const getPassword = () => {
     const password = passwordInput.current?.value;
     const confirmPassword = confirmPasswordInput.current?.value;
-    if (!password || !confirmPassword) return alert("please confirm password"); //TODO: show error
-    if (password !== confirmPassword) return alert("passwords do not match"); //TODO: show error
-    //TODO: add text insert dialog later  zip.file("Hello.txt", "Hello World\n");
-    const zip = new JSZip();
+    const passwordErrorZone = passwordZone.current;
+    const addPwError = (msg: string[]) => {
+      if (passwordErrorZone) {
+        passwordErrorZone.innerHTML = "";
+        msg.forEach((m) => {
+          const p = document.createElement("p");
+          p.setAttribute("style", "color: red");
+          p.innerHTML = m;
+          passwordErrorZone.appendChild(p);
+        });
+      }
+    };
+    if (!password || !confirmPassword)
+      return addPwError(["please confirm password"]); //TODO: show error
+    if (password !== confirmPassword)
+      return addPwError(["passwords do not match"]); //TODO: show error
+    const validatedList = passwordSchema.validate(password, { details: true });
+    if (typeof validatedList !== "boolean")
+      addPwError(validatedList.map((x) => x.message));
 
+    return password;
+  };
+
+  const encryptAndDownload = async () => {
+    const password = getPassword();
+
+    //TODO: add text insert dialog later  zip.file("Hello.txt", "Hello World\n");
+    if (!password) return;
+    const zip = new JSZip();
     await Promise.all(
       files.map(async (file) => {
         await file.file?.arrayBuffer().then(async (buffer) => {
@@ -92,7 +134,7 @@ export default function Home() {
         </div>
 
         <div className={styles.card}>
-          <Dropzone onChange={setFiles} value={files}>
+          <Dropzone maxFileSize={1e9} onChange={setFiles} value={files}>
             {files.map((file) => (
               <FileMosaic key={file.id} {...file} onDelete={removeFile} info />
             ))}
@@ -112,6 +154,8 @@ export default function Home() {
             id="password2"
             placeholder="Confirm password"
           />
+          <br />
+          <div ref={passwordZone}></div>
           <br />
           <button onClick={() => encryptAndDownload()}>
             Encrypt files and download
