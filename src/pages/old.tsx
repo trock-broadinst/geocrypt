@@ -6,7 +6,7 @@ import React from "react";
 import { Dropzone, ExtFile, FileMosaic } from "@files-ui/react";
 import JSZip from "jszip";
 import CryptoJS from "crypto-js";
-import { generateVaultFile } from "@/utils/vaultAssembly";
+import { generateVaultFile } from "@/utils/vaultAssembly_old";
 import PasswordValidator from "password-validator";
 import Link from "next/link";
 
