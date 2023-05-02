@@ -133,10 +133,14 @@ export default function Home() {
             />
             <p>$[GEOCRYPT] ▶ Encrypt &amp; Decrypt the easy way</p>
             <p>
-              If you&apos;re looking for the old version
-              <Link className={styles.link} href="/old">
-                it&apos;s here
+              This is the old version of GeoCrypt, try the new version{" "}
+              <Link className={styles.link} href="/">
+                here
               </Link>
+            </p>
+            <p>
+              This version is ideal for older browsers, however has a file size
+              limit of 49 mb
             </p>
           </div>
         </div>
@@ -147,6 +151,12 @@ export default function Home() {
             maxFileSize={1e9}
             onChange={setFiles}
             value={files}
+            validator={(file) => {
+              //limit file size to 49 mb
+              if (file.size > 49e6)
+                return { valid: false, errors: ["File too large"] };
+              return { valid: true };
+            }}
           >
             {files.map((file) => (
               <FileMosaic key={file.id} {...file} onDelete={removeFile} info />

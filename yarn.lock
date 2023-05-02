@@ -270,6 +270,11 @@
     "@typescript-eslint/types" "5.59.1"
     eslint-visitor-keys "^3.3.0"
 
+"@zip.js/zip.js@^2.7.6":
+  version "2.7.6"
+  resolved "https://registry.yarnpkg.com/@zip.js/zip.js/-/zip.js-2.7.6.tgz#76dfa2f36780f6a2a34ef7979f4464063ffe1ca7"
+  integrity sha512-j9gaYG84Qd3tI3X7BiOpL5bckbbAetpxtpilKnSyW5rMTnrXwH6GtXkL8rEBxnPk100exbfxNlORwFagX7fMfg==
+
 acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.3.2.tgz#7ed5bb55908b3b2f1bc55c6af1653bada7f07937"
