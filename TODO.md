@@ -1,0 +1,5 @@
+- fix glitchy loading
+- make password a password field with eyeball show
+- enter key to trigger encrypt
+- lighthouse/seo
+- handle corruption cases/empty

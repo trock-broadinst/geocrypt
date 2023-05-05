@@ -63,6 +63,7 @@ export const generateVaultFile = (b64FileString:string) => {
         <p>Enter GeoCrypt Password.</p><input type="text" id="passwordBox" name="passwordBox"
             placeholder="Type Password Here"> <button onclick="loadFiles()">Open</button>
         <ol id="fileList"></ol>
-    
+        <hr>
+        <a href="https://geocrypt.me">Made with GeoCrypt</a>
     </html>`;
 }
