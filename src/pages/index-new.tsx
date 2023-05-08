@@ -9,6 +9,14 @@ import CryptoJS from "crypto-js";
 import { generateVaultFile } from "@/utils/vaultAssembly_old";
 import PasswordValidator from "password-validator";
 import Link from "next/link";
+import { vfPart1, vfPart2 } from "@/utils/vaultAssembly_new";
+import {
+  BlobReader,
+  BlobWriter,
+  HttpReader,
+  TextReader,
+  ZipWriter,
+} from "@zip.js/zip.js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,33 +43,19 @@ export default function Home() {
 
   const [files, setFiles] = React.useState<ExtFile[]>([]);
 
+  // function addFiles(filesNew: ExtFile[]) {
+  //   filesNew = filesNew
+  //     .map((file) => {
+  //       //TODO: implement hashing with extraData
+  //       return file;
+  //     })
+  //     .filter((comp) => !files.find((f) => f.extraData["hash"] === comp.file));
+  //   setFiles([...files, ...filesNew]);
+  // }
+
   const removeFile = (id: string | number | undefined) => {
     setFiles(files.filter((x) => x.id !== id));
   };
-
-  function encrypt(buffer: Buffer, key: string): string {
-    var ciphertext = CryptoJS.AES.encrypt(buffer.toString("base64"), key, {
-      mode: CryptoJS.mode.CTR,
-      padding: CryptoJS.pad.NoPadding,
-    });
-    return ciphertext.toString();
-  }
-
-  function download(text: string) {
-    var element = document.createElement("a");
-    element.setAttribute(
-      "href",
-      "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-    );
-    element.setAttribute("download", `geocrypt-${Date.now().toString()}.html`);
-
-    element.style.display = "none";
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-  }
 
   const getPassword = () => {
     const password = passwordInput.current?.value;
@@ -94,25 +88,78 @@ export default function Home() {
 
     //TODO: add text insert dialog later  zip.file("Hello.txt", "Hello World\n");
 
-    if (!password) return;
-    const zip = new JSZip();
-    await Promise.all(
-      files.map(async (file) => {
-        await file.file?.arrayBuffer().then(async (buffer) => {
-          await zip.file(file.name!, buffer);
-        });
-      })
-    )
-      .then(() => zip.generateAsync({ type: "arraybuffer" }))
-      .then((content) => {
-        //arraybuffer to buffer
-        const buffer = Buffer.from(content);
-        const contentCrypt = encrypt(buffer, password);
+    if (!password || !passwordZone.current) return;
 
-        return download(generateVaultFile(contentCrypt));
+    passwordZone.current.innerHTML = "";
+    const zipProgress = document.createElement("progress");
+    zipProgress.value = 0;
+    zipProgress.max = 0;
+    passwordZone.current.appendChild(zipProgress);
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const abortButton = document.createElement("button");
+    abortButton.onclick = () => controller.abort();
+    abortButton.textContent = "✖";
+    abortButton.title = "Abort";
+    passwordZone.current.appendChild(abortButton);
+
+    const options = {
+      password: password,
+      signal,
+      onstart(max: number) {
+        const compressingText = document.createElement("p");
+        compressingText.textContent = "Compressing...";
+        passwordZone.current?.appendChild(compressingText);
+        zipProgress.max = max;
+        return undefined;
+      },
+      onprogress(index: number, max: number) {
+        zipProgress.value = index;
+        zipProgress.max = max;
+        return undefined;
+      },
+    };
+
+    const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
+    await Promise.all(
+      files.map(
+        (file) =>
+          file.file &&
+          zipWriter.add(file.file.name, new BlobReader(file.file), options)
+      )
+    );
+
+    await zipWriter.close().then((blob: Blob) => {
+      passwordZone.current!.innerHTML = "";
+      blob2Base64(blob).then(async (ab) => {
+        const dataBuf = Buffer.concat([
+          Buffer.from(vfPart1),
+          Buffer.from(ab),
+          Buffer.from(vfPart2),
+        ]);
+        const fileId = new File(
+          [dataBuf],
+          `geocrypt-${Date.now().toString()}.html`
+        );
+        const anchor = document.createElement("a");
+        const clickEvent = new MouseEvent("click"); //TODO: untested
+        anchor.href = URL.createObjectURL(fileId);
+        anchor.download = `geocrypt-${Date.now().toString()}.html`;
+        anchor.dispatchEvent(clickEvent);
       });
+    });
   };
 
+  //blob to utf-8 string
+  const blob2Base64 = (blob: Blob): Promise<string> => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onload = () => reader.result && resolve(reader.result.toString());
+      reader.onerror = (error) => reject(error);
+    });
+  };
   return (
     <>
       <Head>
@@ -133,14 +180,10 @@ export default function Home() {
             />
             <p>$[GEOCRYPT] ▶ Encrypt &amp; Decrypt the easy way</p>
             <p>
-              This is the old version of GeoCrypt, try the new version{" "}
-              <Link className={styles.link} href="/">
-                here
+              If you&apos;re looking for the old version
+              <Link className={styles.link} href="/old">
+                it&apos;s here
               </Link>
-            </p>
-            <p>
-              This version is ideal for older browsers, however has a file size
-              limit of 49 mb
             </p>
           </div>
         </div>
@@ -148,15 +191,18 @@ export default function Home() {
         <div className={styles.card}>
           <Dropzone
             style={{ background: "white" }} //TODO: dark/light mode
-            maxFileSize={1e9}
+            maxFileSize={1073741824}
             onChange={setFiles}
-            value={files}
             validator={(file) => {
               //limit file size to 49 mb
-              if (file.size > 49e6)
-                return { valid: false, errors: ["File too large"] };
+              if (file.size > 53687091.2)
+                return {
+                  valid: false,
+                  errors: ["File too large, cannot be larger than 50mb"],
+                };
               return { valid: true };
             }}
+            value={files}
           >
             {files.map((file) => (
               <FileMosaic key={file.id} {...file} onDelete={removeFile} info />
@@ -183,6 +229,7 @@ export default function Home() {
           <button onClick={() => encryptAndDownload()}>
             Encrypt files and download
           </button>
+          {/*TODO: code this to the enter key */}
         </div>
 
         <div className={styles.grid}>
