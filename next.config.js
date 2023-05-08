@@ -3,10 +3,13 @@ const isProd = process.env.NODE_ENV === 'production'
 const nextConfig = {
   assetPrefix: isProd ? '/geocrypt/' : '',
   reactStrictMode: true,
-  output: 'export',
   images: {
     unoptimized: true
   }
+}
+
+if(!isProd){
+   nextConfig['output']='export';
 }
 
 const withPWA = require('next-pwa')({
