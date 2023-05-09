@@ -66,9 +66,9 @@ export default function Home() {
       }
     };
     if (!password || !confirmPassword)
-      return addPwError(["please confirm password"]); //TODO: show error
+      return addPwError(["please confirm password"]);
     if (password !== confirmPassword)
-      return addPwError(["passwords do not match"]); //TODO: show error
+      return addPwError(["passwords do not match"]);
     const validatedList = passwordSchema.validate(password, { details: true });
     if (typeof validatedList !== "boolean" && validatedList.length > 0)
       addPwError(validatedList.map((x) => x.message));
@@ -235,7 +235,6 @@ export default function Home() {
           <button onClick={() => encryptAndDownload()}>
             Encrypt files and download
           </button>
-          {/*TODO: code this to the enter key */}
         </div>
 
         <div className={styles.grid}>
