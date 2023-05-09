@@ -4,19 +4,10 @@ import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import React from "react";
 import { Dropzone, ExtFile, FileMosaic } from "@files-ui/react";
-import JSZip from "jszip";
-import CryptoJS from "crypto-js";
-import { generateVaultFile } from "@/utils/vaultAssembly_old";
 import PasswordValidator from "password-validator";
 import Link from "next/link";
 import { vfPart1, vfPart2 } from "@/utils/vaultAssembly_new";
-import {
-  BlobReader,
-  BlobWriter,
-  HttpReader,
-  TextReader,
-  ZipWriter,
-} from "@zip.js/zip.js";
+import { BlobReader, BlobWriter, ZipWriter } from "@zip.js/zip.js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,8 +52,10 @@ export default function Home() {
     const password = passwordInput.current?.value;
     const confirmPassword = confirmPasswordInput.current?.value;
     const passwordErrorZone = passwordZone.current;
+    let pweOccured = false;
     const addPwError = (msg: string[]) => {
       if (passwordErrorZone) {
+        pweOccured = true;
         passwordErrorZone.innerHTML = "";
         msg.forEach((m) => {
           const p = document.createElement("p");
@@ -77,17 +70,14 @@ export default function Home() {
     if (password !== confirmPassword)
       return addPwError(["passwords do not match"]); //TODO: show error
     const validatedList = passwordSchema.validate(password, { details: true });
-    if (typeof validatedList !== "boolean")
+    if (typeof validatedList !== "boolean" && validatedList.length > 0)
       addPwError(validatedList.map((x) => x.message));
-
-    return password;
+    if (pweOccured) return undefined;
+    else return password;
   };
 
   const encryptAndDownload = async () => {
     const password = getPassword();
-
-    //TODO: add text insert dialog later  zip.file("Hello.txt", "Hello World\n");
-
     if (!password || !passwordZone.current) return;
 
     passwordZone.current.innerHTML = "";
@@ -98,14 +88,14 @@ export default function Home() {
 
     const controller = new AbortController();
     const signal = controller.signal;
-    const abortButton = document.createElement("button");
+    const abortButton = document.createElement("button"); //TODO: throws error when used
     abortButton.onclick = () => controller.abort();
     abortButton.textContent = "✖";
     abortButton.title = "Abort";
     passwordZone.current.appendChild(abortButton);
 
     const options = {
-      password: password,
+      password: password, //TODO: dosen't actually encrypt
       signal,
       onstart(max: number) {
         const compressingText = document.createElement("p");
@@ -121,7 +111,10 @@ export default function Home() {
       },
     };
 
-    const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
+    const zipWriter = new ZipWriter(new BlobWriter("application/zip"), {
+      bufferedWrite: true,
+    });
+
     await Promise.all(
       files.map(
         (file) =>
@@ -129,37 +122,48 @@ export default function Home() {
           zipWriter.add(file.file.name, new BlobReader(file.file), options)
       )
     );
+    //download stream
+    const fileHandle = await showSaveFilePicker({
+      suggestedName: `geocrypt-${Date.now().toString()}.html`,
+      types: [{ accept: { "text/html": [".html"] } }],
+      excludeAcceptAllOption: false, // default
+    });
 
-    await zipWriter.close().then((blob: Blob) => {
-      passwordZone.current!.innerHTML = "";
-      blob2Base64(blob).then(async (ab) => {
-        const dataBuf = Buffer.concat([
-          Buffer.from(vfPart1),
-          Buffer.from(ab),
-          Buffer.from(vfPart2),
-        ]);
-        const fileId = new File(
-          [dataBuf],
-          `geocrypt-${Date.now().toString()}.html`
-        );
-        const anchor = document.createElement("a");
-        const clickEvent = new MouseEvent("click"); //TODO: untested
-        anchor.href = URL.createObjectURL(fileId);
-        anchor.download = `geocrypt-${Date.now().toString()}.html`;
-        anchor.dispatchEvent(clickEvent);
+    // create a FileSystemWritableFileStream to write to
+    const writableStream = await fileHandle.createWritable();
+    await writableStream.write(vfPart1);
+    await zipWriter
+      .close()
+      .then((buf) => buf.arrayBuffer())
+      .then((arb) => new Uint8Array(arb))
+      .then(async (uint8Arr: Uint8Array) => {
+        const base64Alphabet =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let i = 0;
+
+        await writableStream.write("data:application/zip;base64,");
+        while (i < uint8Arr.length) {
+          const byte1 = uint8Arr[i++];
+          const byte2 = i < uint8Arr.length ? uint8Arr[i++] : 0;
+          const byte3 = i < uint8Arr.length ? uint8Arr[i++] : 0;
+
+          const enc1 = base64Alphabet[byte1 >> 2];
+          const enc2 = base64Alphabet[((byte1 & 0x03) << 4) | (byte2 >> 4)];
+          const enc3 =
+            i < uint8Arr.length
+              ? base64Alphabet[((byte2 & 0x0f) << 2) | (byte3 >> 6)]
+              : "=";
+          const enc4 = i < uint8Arr.length ? base64Alphabet[byte3 & 0x3f] : "=";
+
+          await writableStream.write(enc1 + enc2 + enc3 + enc4);
+        }
       });
-    });
+    //iterate through arraybuffer and write to stream
+
+    await writableStream.write(vfPart2);
+    await writableStream.close();
   };
 
-  //blob to utf-8 string
-  const blob2Base64 = (blob: Blob): Promise<string> => {
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onload = () => reader.result && resolve(reader.result.toString());
-      reader.onerror = (error) => reject(error);
-    });
-  };
   return (
     <>
       <Head>
@@ -193,15 +197,6 @@ export default function Home() {
             style={{ background: "white" }} //TODO: dark/light mode
             maxFileSize={1073741824}
             onChange={setFiles}
-            validator={(file) => {
-              //limit file size to 49 mb
-              if (file.size > 53687091.2)
-                return {
-                  valid: false,
-                  errors: ["File too large, cannot be larger than 50mb"],
-                };
-              return { valid: true };
-            }}
             value={files}
           >
             {files.map((file) => (

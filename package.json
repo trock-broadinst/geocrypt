@@ -28,6 +28,8 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.1",
-    "@types/file-saver": "^2.0.5"
+    "@types/file-saver": "^2.0.5",
+    "@types/wicg-file-system-access": "^2020.9.6",
+    "native-file-system-adapter-ts": "^2.0.4"
   }
 }

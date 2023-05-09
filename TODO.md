@@ -3,3 +3,4 @@
 - enter key to trigger encrypt
 - lighthouse/seo
 - handle corruption cases/empty
+- worth consideration: https://www.npmjs.com/package/native-file-system-adapter
