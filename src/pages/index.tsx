@@ -76,6 +76,17 @@ export default function Home() {
     else return password;
   };
 
+  //run encryptAndDownload when enter key is pressed
+  React.useEffect(() => {
+    const handleEnter = (e: KeyboardEvent) => {
+      if (e.key === "Enter") encryptAndDownload();
+    };
+    document.addEventListener("keydown", handleEnter);
+    return () => {
+      document.removeEventListener("keydown", handleEnter);
+    };
+  }, []);
+
   const encryptAndDownload = async () => {
     const password = getPassword();
     if (!password || !passwordZone.current) return;
@@ -278,8 +289,9 @@ export default function Home() {
               title="edisys"
             ></iframe>
           </div>
+          <Image src="/edisys.png" alt="edisys logo" width="200" height="100" />
         </div>
       </main>
     </>
-  ); //TODO: edisys logo
+  );
 }
