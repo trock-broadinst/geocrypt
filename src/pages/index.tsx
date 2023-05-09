@@ -34,16 +34,6 @@ export default function Home() {
 
   const [files, setFiles] = React.useState<ExtFile[]>([]);
 
-  // function addFiles(filesNew: ExtFile[]) {
-  //   filesNew = filesNew
-  //     .map((file) => {
-  //       //TODO: implement hashing with extraData
-  //       return file;
-  //     })
-  //     .filter((comp) => !files.find((f) => f.extraData["hash"] === comp.file));
-  //   setFiles([...files, ...filesNew]);
-  // }
-
   const removeFile = (id: string | number | undefined) => {
     setFiles(files.filter((x) => x.id !== id));
   };
@@ -207,7 +197,18 @@ export default function Home() {
           <Dropzone
             style={{ background: "white" }} //TODO: dark/light mode
             maxFileSize={1073741824}
-            onChange={setFiles}
+            onChange={(files) => {
+              if (new Set(files.map((x) => x.name)).size !== files.length) {
+                setFiles(
+                  files.filter(
+                    (x, i, a) => a.findIndex((y) => y.name === x.name) === i
+                  )
+                );
+                return alert(
+                  "Files cannot have duplicate names, duplicates will be removed in download"
+                );
+              } else setFiles(files);
+            }}
             value={files}
           >
             {files.map((file) => (
