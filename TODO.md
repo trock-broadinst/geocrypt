@@ -1,6 +1,6 @@
-- fix glitchy loading
 - make password a password field with eyeball show
 - enter key to trigger encrypt
 - lighthouse/seo
 - handle corruption cases/empty
 - worth consideration: https://www.npmjs.com/package/native-file-system-adapter
+- files could be stored individually with an external encrypted spine file, therefore allowing more evil-ness

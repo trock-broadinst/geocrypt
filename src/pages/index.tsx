@@ -7,7 +7,14 @@ import { Dropzone, ExtFile, FileMosaic } from "@files-ui/react";
 import PasswordValidator from "password-validator";
 import Link from "next/link";
 import { vfPart1, vfPart2 } from "@/utils/vaultAssembly_new";
-import { BlobReader, BlobWriter, ZipWriter } from "@zip.js/zip.js";
+import {
+  BlobReader,
+  BlobWriter,
+  ZipWriter,
+  ZipWriterAddDataOptions,
+} from "@zip.js/zip.js";
+import b64 from "base64-async";
+import "core-js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -81,6 +88,17 @@ export default function Home() {
     const password = getPassword();
     if (!password || !passwordZone.current) return;
 
+    //download stream
+    const fileHandle = await showSaveFilePicker({
+      suggestedName: `geocrypt-${Date.now().toString()}.html`,
+      types: [{ accept: { "text/html": [".html"] } }],
+      excludeAcceptAllOption: false, // default
+    });
+
+    // must be at top of function for security purposes
+    // create a FileSystemWritableFileStream to write to
+    const writableStream = await fileHandle.createWritable();
+
     passwordZone.current.innerHTML = "";
     const zipProgress = document.createElement("progress");
     zipProgress.value = 0;
@@ -89,19 +107,25 @@ export default function Home() {
 
     const controller = new AbortController();
     const signal = controller.signal;
-    const abortButton = document.createElement("button"); //TODO: throws error when used
-    abortButton.onclick = () => controller.abort();
+    const abortButton = document.createElement("button"); //TODO: throws error when used, should also abort writeout
+    abortButton.onclick = () => {
+      controller.abort("Aborted by user");
+      zipProgress.remove();
+      abortButton.remove();
+      compressingText.remove();
+    };
     abortButton.textContent = "✖";
     abortButton.title = "Abort";
     passwordZone.current.appendChild(abortButton);
 
-    const options = {
-      password: password, //TODO: dosen't actually encrypt
+    const compressingText = document.createElement("p");
+    compressingText.textContent = "Compressing...";
+    passwordZone.current?.appendChild(compressingText);
+
+    const options: ZipWriterAddDataOptions = {
+      password: password,
       signal,
       onstart(max: number) {
-        const compressingText = document.createElement("p");
-        compressingText.textContent = "Compressing...";
-        passwordZone.current?.appendChild(compressingText);
         zipProgress.max = max;
         return undefined;
       },
@@ -123,46 +147,49 @@ export default function Home() {
           zipWriter.add(file.file.name, new BlobReader(file.file), options)
       )
     );
-    //download stream
-    const fileHandle = await showSaveFilePicker({
-      suggestedName: `geocrypt-${Date.now().toString()}.html`,
-      types: [{ accept: { "text/html": [".html"] } }],
-      excludeAcceptAllOption: false, // default
-    });
 
-    // create a FileSystemWritableFileStream to write to
-    const writableStream = await fileHandle.createWritable();
     await writableStream.write(vfPart1);
     await zipWriter
       .close()
-      .then((buf) => buf.arrayBuffer())
-      .then((arb) => new Uint8Array(arb))
-      .then(async (uint8Arr: Uint8Array) => {
-        const base64Alphabet =
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        let i = 0;
+      .then((blob) => blob.arrayBuffer())
+      .then((arb) => b64.encode(Buffer.from(arb)))
+      // .then((arb) => new Uint8Array(arb))
+      // .then(async (uint8Arr: Uint8Array) => {
+      //   const base64Alphabet =
+      //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+      //   const arrlen = uint8Arr.length;
+      //   let i = 0;
 
-        await writableStream.write("data:application/zip;base64,");
-        while (i < uint8Arr.length) {
-          const byte1 = uint8Arr[i++];
-          const byte2 = i < uint8Arr.length ? uint8Arr[i++] : 0;
-          const byte3 = i < uint8Arr.length ? uint8Arr[i++] : 0;
+      //   compressingText.textContent = "Downloading...";
+      //   zipProgress.max = arrlen;
+      //   await writableStream.write("data:application/zip;base64,");
 
-          const enc1 = base64Alphabet[byte1 >> 2];
-          const enc2 = base64Alphabet[((byte1 & 0x03) << 4) | (byte2 >> 4)];
-          const enc3 =
-            i < uint8Arr.length
-              ? base64Alphabet[((byte2 & 0x0f) << 2) | (byte3 >> 6)]
-              : "=";
-          const enc4 = i < uint8Arr.length ? base64Alphabet[byte3 & 0x3f] : "=";
+      //   while (i < arrlen) {
+      //     zipProgress.value = i;
+      //     const byte1 = uint8Arr[i++];
+      //     const byte2 = i < arrlen ? uint8Arr[i++] : 0;
+      //     const byte3 = i < arrlen ? uint8Arr[i++] : 0;
 
-          await writableStream.write(enc1 + enc2 + enc3 + enc4);
-        }
-      });
-    //iterate through arraybuffer and write to stream
+      //     const enc1 = base64Alphabet[byte1 >> 2];
+      //     const enc2 = base64Alphabet[((byte1 & 0x03) << 4) | (byte2 >> 4)];
+      //     const enc3 =
+      //       i < arrlen
+      //         ? base64Alphabet[((byte2 & 0x0f) << 2) | (byte3 >> 6)]
+      //         : "=";
+      //     const enc4 = i < arrlen ? base64Alphabet[byte3 & 0x3f] : "=";
 
-    await writableStream.write(vfPart2);
-    await writableStream.close();
+      //     await writableStream.write(enc1 + enc2 + enc3 + enc4);
+      //   }
+      // })
+      .then((wst) => writableStream.write(wst))
+      .then(() => writableStream.write(vfPart2))
+      .then(() => writableStream.close())
+      .finally(() => {
+        zipProgress.remove();
+        abortButton.remove();
+        compressingText.remove();
+      })
+      .catch((err) => alert(err));
   };
 
   return (
@@ -174,29 +201,20 @@ export default function Home() {
         <link rel="icon" href="/favicon.svg" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
-        <div className={styles.description}>
-          <div>
-            <Image
-              src="/geoCrypt.svg"
-              alt="GeoCrypt Logo"
-              width={300}
-              height={300}
-              priority
-            />
-            <p>$[GEOCRYPT] ▶ Encrypt &amp; Decrypt the easy way</p>
-            <p>
-              If you&apos;re looking for the old version
-              <Link className={styles.link} href="/old">
-                it&apos;s here
-              </Link>
-            </p>
-          </div>
-        </div>
+        <Image
+          src="/geoCrypt.svg"
+          alt="GeoCrypt Logo"
+          width={300}
+          height={300}
+          priority
+        />
+        <h2>[GEOCRYPT]</h2>
+        <h4> Encrypt &amp; Decrypt the easy way</h4>
 
         <div className={styles.card}>
           <Dropzone
             style={{ background: "white" }} //TODO: dark/light mode
-            maxFileSize={1073741824}
+            maxFileSize={2.5e8} //250 megabytes
             onChange={(files) => {
               if (new Set(files.map((x) => x.name)).size !== files.length) {
                 setFiles(
@@ -236,6 +254,18 @@ export default function Home() {
           <button onClick={() => encryptAndDownload()}>
             Encrypt files and download
           </button>
+        </div>
+
+        <div className={styles.description}>
+          <div>
+            <p>
+              If you&apos;re looking for the old version
+              <Link className={styles.link} href="/old">
+                it&apos;s here
+              </Link>
+              May not work well with firefox
+            </p>
+          </div>
         </div>
 
         <div className={styles.grid}>
@@ -285,7 +315,6 @@ export default function Home() {
                 padding: "4px",
                 background: "#f9f9f9",
               }}
-              height="712"
               title="edisys"
             ></iframe>
           </div>

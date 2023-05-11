@@ -8,11 +8,11 @@ export const vfPart1 = `<!DOCTYPE html>
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         const version = "2.0.0";
-        const blobString = "`;
+        const blobString = "data:application/zip;base64,`;
 
 export const vfPart2 = `";
 const loadFiles = async () => {
-    var gcPassword = document.getElementById("passwordBox").value;
+    const gcPassword = document.getElementById("passwordBox").value;
     fetch(blobString)
         .then(res => res.blob())
         .then(fileBlob => {
@@ -21,6 +21,7 @@ const loadFiles = async () => {
                 const zipReader = new window.zip.ZipReader(zipFileReader);
 
                 zipReader.getEntries().then((zipFiles) => {
+                    document.getElementById("fileList").innerHTML = "";
                     zipFiles.forEach(async function (file) {
                         const link = document.createElement("a");
                         link.href = "#";
@@ -33,7 +34,7 @@ const loadFiles = async () => {
                                 anchor.href = URL.createObjectURL(fileData);
                                 anchor.download = file.filename;
                                 anchor.dispatchEvent(clickEvent);
-                            });
+                            }).catch(err => alert(err));
                         };
                         link.innerHTML = file.filename;
                         const listEl = document.createElement("li")
@@ -63,4 +64,14 @@ placeholder="Type Password Here"> <button onclick="loadFiles()">Open</button>
 <ol id="fileList"></ol>
 <hr>
 <a href="https://geocrypt.me">Made with GeoCrypt</a>
+<p>warning: may not work with large files on firefox</p>
+</body>
+<script>
+document.getElementById("passwordBox").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      loadFiles()
+    }
+});
+</script>
 </html>`;

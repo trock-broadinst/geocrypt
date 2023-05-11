@@ -148,7 +148,7 @@ export default function Home() {
         <div className={styles.card}>
           <Dropzone
             style={{ background: "white" }} //TODO: dark/light mode
-            maxFileSize={1e9}
+            maxFileSize={1e8}
             onChange={setFiles}
             value={files}
             validator={(file) => {
