@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import React from "react";
-import { Dropzone, ExtFile, FileMosaic } from "@files-ui/react";
+import { FileUploader } from "react-drag-drop-files";
 import PasswordValidator from "password-validator";
 import Link from "next/link";
 import { vfPart1, vfPart2 } from "@/utils/vaultAssembly_new";
@@ -36,15 +36,42 @@ passwordSchema
   .not()
   .spaces();
 
+const maxSize = 2.5e8; //250MB
+
+const fancyBytes = (bytes: number) => {
+  const size = Math.floor(bytes / 1e6);
+  return size < 1 ? `${Math.floor(bytes / 1e3)}Kb` : `${size}Mb`;
+};
+
 export default function Home() {
   const passwordInput = React.useRef<HTMLInputElement>(null);
   const confirmPasswordInput = React.useRef<HTMLInputElement>(null);
   const passwordZone = React.useRef<HTMLInputElement>(null);
 
-  const [files, setFiles] = React.useState<ExtFile[]>([]);
+  const [files, setFiles] = React.useState<File[]>([]);
+  const [totalSize, setTotalSize] = React.useState<number>(0);
 
-  const removeFile = (id: string | number | undefined) => {
-    setFiles(files.filter((x) => x.id !== id));
+  const addFiles = (initialList: File[]) => {
+    const files = Array.from(initialList);
+    //check total filesize
+    const totalSize = files.reduce((a, b) => a + b.size, 0);
+
+    if (totalSize > maxSize)
+      return alert("Total file size cannot exceed 250MB");
+    setTotalSize(totalSize);
+
+    if (new Set(files.map((x) => x.name)).size !== files.length) {
+      setFiles(
+        files.filter((x, i, a) => a.findIndex((y) => y.name === x.name) === i)
+      );
+      return alert(
+        "Files cannot have duplicate names, duplicates will be removed in download"
+      );
+    } else setFiles(files);
+  };
+
+  const removeFile = (name: string | number | undefined) => {
+    setFiles(files.filter((x) => x.name !== name));
   };
 
   const getPassword = () => {
@@ -93,7 +120,7 @@ export default function Home() {
     //download stream
     const fileHandle = await showSaveFilePicker({
       suggestedName: `geocrypt-${Date.now().toString()}.html`,
-      types: [{ accept: { "text/html": [".html"] } }],
+      accepts: [{ accept: { "text/html": [".html"] } }],
       excludeAcceptAllOption: false, // default
     });
 
@@ -145,8 +172,7 @@ export default function Home() {
     await Promise.all(
       files.map(
         (file) =>
-          file.file &&
-          zipWriter.add(file.file.name, new BlobReader(file.file), options)
+          file && zipWriter.add(file.name, new BlobReader(file), options)
       )
     );
 
@@ -184,55 +210,65 @@ export default function Home() {
         />
         <h2>[GEOCRYPT]</h2>
         <h4> Encrypt &amp; Decrypt the easy way</h4>
-
+        <br />
         <div className={styles.card}>
-          <Dropzone
-            style={{ background: "white" }} //TODO: dark/light mode
-            maxFileSize={2.5e8} //250 megabytes
-            onChange={(files) => {
-              if (new Set(files.map((x) => x.name)).size !== files.length) {
-                setFiles(
-                  files.filter(
-                    (x, i, a) => a.findIndex((y) => y.name === x.name) === i
-                  )
-                );
-                return alert(
-                  "Files cannot have duplicate names, duplicates will be removed in download"
-                );
-              } else setFiles(files);
-            }}
-            value={files}
+          <br />
+          <FileUploader
+            multiple={true}
+            required={true}
+            handleChange={addFiles}
+            name="file"
           >
-            {files.map((file) => (
-              <FileMosaic key={file.id} {...file} onDelete={removeFile} info />
-            ))}
-          </Dropzone>
-          <label htmlFor="password1">Password </label>
+            <div className={styles.uploadbox}>
+              Drag &amp; Drop files here <p>{fancyBytes(totalSize)}/250MB</p>
+            </div>
+          </FileUploader>
+          <br />
+          <div
+            className={styles.card}
+            style={{ height: "15em", width: "20em", overflow: "overlay" }}
+          >
+            {files.length > 0 &&
+              files.map((file) => (
+                <div className={styles.filelistbox} key={file.name}>
+                  {file.name}{" "}
+                  <p>
+                    {fancyBytes(file.size)}{" "}
+                    <button onClick={() => removeFile(file.name)}>✖</button>
+                  </p>
+                  <hr />
+                </div>
+              ))}
+          </div>
           <input
             ref={passwordInput}
             type="text"
             id="password1"
+            className={styles.textbox}
             placeholder="Enter password"
           />
           <br />
-          <label htmlFor="password2">Confirm Password </label>
           <input
             ref={confirmPasswordInput}
             type="text"
             id="password2"
+            className={styles.textbox}
             placeholder="Confirm password"
           />
           <br />
           <div ref={passwordZone}></div>
           <br />
-          <button onClick={() => encryptAndDownload()}>
+          <button
+            className={styles.bigbutton}
+            onClick={() => encryptAndDownload()}
+          >
             Encrypt files and download
           </button>
         </div>
 
-        <div className={styles.description}>
+        <h2 className={styles.description}>
           <div>Warning: it is not advised to use firefox for this website</div>
-        </div>
+        </h2>
 
         <div className={styles.grid}>
           <div className={styles.card}>
