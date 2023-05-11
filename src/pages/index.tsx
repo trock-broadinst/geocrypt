@@ -15,6 +15,8 @@ import {
 } from "@zip.js/zip.js";
 import b64 from "base64-async";
 import "core-js";
+// import "core-js/features/set-immediate";
+import { showSaveFilePicker } from "native-file-system-adapter";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -107,7 +109,7 @@ export default function Home() {
 
     const controller = new AbortController();
     const signal = controller.signal;
-    const abortButton = document.createElement("button"); //TODO: throws error when used, should also abort writeout
+    const abortButton = document.createElement("button");
     abortButton.onclick = () => {
       controller.abort("Aborted by user");
       zipProgress.remove();
@@ -153,34 +155,6 @@ export default function Home() {
       .close()
       .then((blob) => blob.arrayBuffer())
       .then((arb) => b64.encode(Buffer.from(arb)))
-      // .then((arb) => new Uint8Array(arb))
-      // .then(async (uint8Arr: Uint8Array) => {
-      //   const base64Alphabet =
-      //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-      //   const arrlen = uint8Arr.length;
-      //   let i = 0;
-
-      //   compressingText.textContent = "Downloading...";
-      //   zipProgress.max = arrlen;
-      //   await writableStream.write("data:application/zip;base64,");
-
-      //   while (i < arrlen) {
-      //     zipProgress.value = i;
-      //     const byte1 = uint8Arr[i++];
-      //     const byte2 = i < arrlen ? uint8Arr[i++] : 0;
-      //     const byte3 = i < arrlen ? uint8Arr[i++] : 0;
-
-      //     const enc1 = base64Alphabet[byte1 >> 2];
-      //     const enc2 = base64Alphabet[((byte1 & 0x03) << 4) | (byte2 >> 4)];
-      //     const enc3 =
-      //       i < arrlen
-      //         ? base64Alphabet[((byte2 & 0x0f) << 2) | (byte3 >> 6)]
-      //         : "=";
-      //     const enc4 = i < arrlen ? base64Alphabet[byte3 & 0x3f] : "=";
-
-      //     await writableStream.write(enc1 + enc2 + enc3 + enc4);
-      //   }
-      // })
       .then((wst) => writableStream.write(wst))
       .then(() => writableStream.write(vfPart2))
       .then(() => writableStream.close())
@@ -198,7 +172,7 @@ export default function Home() {
         <title>GeoCrypt</title>
         <meta name="description" content="Encrypt files online free" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.svg" />
+        <link rel="icon" href="/geoCrypt.svg" />
       </Head>
       <main className={`${styles.main} ${inter.className}`}>
         <Image
@@ -257,15 +231,7 @@ export default function Home() {
         </div>
 
         <div className={styles.description}>
-          <div>
-            <p>
-              If you&apos;re looking for the old version
-              <Link className={styles.link} href="/old">
-                it&apos;s here
-              </Link>
-              May not work well with firefox
-            </p>
-          </div>
+          <div>Warning: it is not advised to use firefox for this website</div>
         </div>
 
         <div className={styles.grid}>
@@ -306,18 +272,27 @@ export default function Home() {
             <h2>
               How can I support this? <span>⤵</span>
             </h2>
-            <iframe
-              id="kofiframe"
-              src="https://ko-fi.com/edisys/?hidefeed=true&widget=true&embed=true&preview=true"
-              style={{
-                border: "none",
-                width: "100%",
-                padding: "4px",
-                background: "#f9f9f9",
-              }}
-              title="edisys"
-            ></iframe>
+            <Link
+              className={styles.link}
+              href="https://ko-fi.com/edisys/?hidefeed=true&widget=true&embed=true&preview=true"
+            >
+              With Ko-fi
+            </Link>
+            <p>supporting will ensure that</p>
+            <ul>
+              <li>GeoCrypt stays online</li>
+              <li>GeoCrypt gets a new WASM port that allows larger files</li>
+            </ul>
           </div>
+          <p>
+            If you&apos;re looking for the old version{" "}
+            <Link className={styles.link} href="/old">
+              it&apos;s here
+            </Link>
+            <br />
+            copyright 2023
+          </p>
+          <br />
           <Image src="/edisys.png" alt="edisys logo" width="200" height="100" />
         </div>
       </main>
