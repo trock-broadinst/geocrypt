@@ -1,5 +1,5 @@
 - make password a password field with eyeball show
-- enter key to trigger encrypt
+- add loading indicator for client module
 - lighthouse/seo
 - handle corruption cases/empty
 - worth consideration: https://www.npmjs.com/package/native-file-system-adapter
