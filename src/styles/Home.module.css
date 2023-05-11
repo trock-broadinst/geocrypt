@@ -1,3 +1,39 @@
+.uploadbox {
+  background: rgba(var(--card-rgb), 0.1);
+  border: 5px solid rgba(var(--card-border-rgb), 0.45);
+  color: greenyellow;
+  padding: 1rem 1.2rem;
+  border-radius: var(--border-radius);
+  background: rgba(var(--card-rgb), 0);
+}
+
+.filelistbox {
+  background: rgba(var(--card-rgb), 0.1);
+  border: 1px solid rgba(var(--card-border-rgb), 0.20);
+  padding: 1rem 1.2rem;
+  border-radius: var(--border-radius);
+  background: rgba(var(--card-rgb), 0);
+}
+
+.textbox {
+  border: 1px solid rgba(var(--card-border-rgb), .5);
+  padding: 1rem 1.2rem;
+  border-radius: var(--border-radius);
+  opacity: 1;
+  background: rgba(var(--card-rgb), 0.2);
+  font-weight: 700;
+  width: 100%;
+}
+
+.bigbutton {
+  border: 1px solid rgba(var(--card-border-rgb), 0.45);
+  padding: 1rem 1.2rem;
+  color:greenyellow;
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  background: rgba(var(--card-rgb), 0.2);
+}
+
 .main {
   display: flex;
   flex-direction: column;
