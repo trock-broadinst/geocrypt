@@ -17,6 +17,7 @@ import b64 from "base64-async";
 import "core-js";
 // import "core-js/features/set-immediate";
 import { showSaveFilePicker } from "native-file-system-adapter";
+import { HandleUpload } from "@/pages/uploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -36,43 +37,12 @@ passwordSchema
   .not()
   .spaces();
 
-const maxSize = 2.5e8; //250MB
-
-const fancyBytes = (bytes: number) => {
-  const size = Math.floor(bytes / 1e6);
-  return size < 1 ? `${Math.floor(bytes / 1e3)}Kb` : `${size}Mb`;
-};
-
 export default function Home() {
   const passwordInput = React.useRef<HTMLInputElement>(null);
   const confirmPasswordInput = React.useRef<HTMLInputElement>(null);
   const passwordZone = React.useRef<HTMLInputElement>(null);
 
   const [files, setFiles] = React.useState<File[]>([]);
-  const [totalSize, setTotalSize] = React.useState<number>(0);
-
-  const addFiles = (initialList: File[]) => {
-    const files = Array.from(initialList);
-    //check total filesize
-    const totalSize = files.reduce((a, b) => a + b.size, 0);
-
-    if (totalSize > maxSize)
-      return alert("Total file size cannot exceed 250MB");
-    setTotalSize(totalSize);
-
-    if (new Set(files.map((x) => x.name)).size !== files.length) {
-      setFiles(
-        files.filter((x, i, a) => a.findIndex((y) => y.name === x.name) === i)
-      );
-      return alert(
-        "Files cannot have duplicate names, duplicates will be removed in download"
-      );
-    } else setFiles(files);
-  };
-
-  const removeFile = (name: string | number | undefined) => {
-    setFiles(files.filter((x) => x.name !== name));
-  };
 
   const getPassword = () => {
     const password = passwordInput.current?.value;
@@ -213,33 +183,7 @@ export default function Home() {
         <br />
         <div className={styles.card}>
           <br />
-          <FileUploader
-            multiple={true}
-            required={true}
-            handleChange={addFiles}
-            name="file"
-          >
-            <div className={styles.uploadbox}>
-              Drag &amp; Drop files here <p>{fancyBytes(totalSize)}/250MB</p>
-            </div>
-          </FileUploader>
-          <br />
-          <div
-            className={styles.card}
-            style={{ height: "15em", width: "20em", overflow: "overlay" }}
-          >
-            {files.length > 0 &&
-              files.map((file) => (
-                <div className={styles.filelistbox} key={file.name}>
-                  {file.name}{" "}
-                  <p>
-                    {fancyBytes(file.size)}{" "}
-                    <button onClick={() => removeFile(file.name)}>✖</button>
-                  </p>
-                  <hr />
-                </div>
-              ))}
-          </div>
+          <HandleUpload setFiles={setFiles} files={files} />
           <input
             ref={passwordInput}
             type="text"
@@ -280,7 +224,6 @@ export default function Home() {
               industry-standard security algorithm
             </p>
           </div>
-
           <div className={styles.card}>
             <h2>
               Simple <span>⤵</span>
@@ -291,7 +234,6 @@ export default function Home() {
               sure to share the password through a secure channel.
             </p>
           </div>
-
           <div className={styles.card}>
             <h2>
               Is this legal? <span>⤵</span>
@@ -303,7 +245,6 @@ export default function Home() {
               damages.
             </p>
           </div>
-
           <div className={styles.card}>
             <h2>
               How can I support this? <span>⤵</span>
@@ -320,15 +261,8 @@ export default function Home() {
               <li>GeoCrypt gets a new WASM port that allows larger files</li>
             </ul>
           </div>
-          <p>
-            If you&apos;re looking for the old version{" "}
-            <Link className={styles.link} href="/old">
-              it&apos;s here
-            </Link>
-            <br />
-            copyright 2023
-          </p>
           <br />
+          copyright 2023
           <Image src="/edisys.png" alt="edisys logo" width="200" height="100" />
         </div>
       </main>
