@@ -6,6 +6,7 @@
 - handle corruption cases/empty
 - worth consideration: https://www.npmjs.com/package/native-file-system-adapter
 - files could be stored individually with an external encrypted spine file, therefore allowing more evil-ness
+- style progressbar
 - no progressbar on safari
 
 - webtorrent, maybe: https://jimmywarting.github.io/StreamSaver.js/examples/torrent.html

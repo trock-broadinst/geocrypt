@@ -17,7 +17,7 @@ import b64 from "base64-async";
 import "core-js";
 // import "core-js/features/set-immediate";
 import { showSaveFilePicker } from "native-file-system-adapter";
-import { HandleUpload } from "@/pages/uploader";
+import HandleUpload from "@/utils/uploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -81,7 +81,7 @@ export default function Home() {
     return () => {
       document.removeEventListener("keydown", handleEnter);
     };
-  }, []);
+  });
 
   const encryptAndDownload = async () => {
     const password = getPassword();

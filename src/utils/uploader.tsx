@@ -10,7 +10,7 @@ const fancyBytes = (bytes: number) => {
   return size < 1 ? `${Math.floor(bytes / 1e3)}Kb` : `${size}Mb`;
 };
 
-export const HandleUpload = (props: {
+const HandleUpload = (props: {
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
 }) => {
@@ -71,3 +71,5 @@ export const HandleUpload = (props: {
     </>
   );
 };
+
+export default HandleUpload;
