@@ -25,6 +25,7 @@ const HandlePassword = (props: {
   const passwordInput = React.useRef<HTMLInputElement>(null);
   const confirmPasswordInput = React.useRef<HTMLInputElement>(null);
   const passwordZone = React.useRef<HTMLInputElement>(null);
+  const [passwordVisible, setPasswordVisible] = React.useState<boolean>(false);
 
   // React.useEffect(() => getPassword(), [passwordInput, confirmPasswordInput]);
 
@@ -62,7 +63,7 @@ const HandlePassword = (props: {
     <>
       <input
         ref={passwordInput}
-        type="text"
+        type={passwordVisible ? "text" : "password"}
         id="password1"
         className={styles.textbox}
         style={{ marginBottom: "0.5rem" }}
@@ -72,12 +73,20 @@ const HandlePassword = (props: {
       <br />
       <input
         ref={confirmPasswordInput}
-        type="text"
+        type={passwordVisible ? "text" : "password"}
         id="password2"
         className={styles.textbox}
+        style={{ marginBottom: "0.5rem" }}
         onChange={getPassword}
         placeholder="Confirm password"
       />
+      <br />
+      <button
+        style={{ width: "100%" }}
+        onClick={() => setPasswordVisible(!passwordVisible)}
+      >
+        ⏿
+      </button>
       <br />
       <div ref={passwordZone}></div>
       <br />
