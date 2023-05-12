@@ -51,10 +51,7 @@ const HandleUpload = (props: {
         </div>
       </FileUploader>
       <br />
-      <div
-        className={styles.card}
-        style={{ height: "15em", width: "20em", overflow: "overlay" }}
-      >
+      <div className={styles.filelistcontainer}>
         {files.length > 0 &&
           files.map((file) => (
             <div className={styles.filelistbox} key={file.name}>
