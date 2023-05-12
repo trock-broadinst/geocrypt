@@ -2,4 +2,6 @@
 - no progressbar on safari
 - lightmode/darkmode
 
-- webtorrent, maybe: https://jimmywarting.github.io/StreamSaver.js/examples/torrent.html
+- link leads
+ - https://www.npmjs.com/package/libarchive.js
+ - webtorrent, maybe: https://jimmywarting.github.io/StreamSaver.js/examples/torrent.html

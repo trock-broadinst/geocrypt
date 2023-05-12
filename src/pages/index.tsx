@@ -45,10 +45,11 @@ export default function Home() {
   });
 
   const encryptAndDownload = async () => {
-    await setShowProgress(true);
-    console.log(password, progressBar.current, cancelButton.current);
-    if (password === undefined || !progressBar.current || !cancelButton.current)
+    if (password !== undefined) await setShowProgress(true);
+    if (files.length < 1 || !progressBar.current || !cancelButton.current) {
+      setShowProgress(false);
       return;
+    }
 
     progressBar.current.value = 0;
     progressBar.current.max = 0;
@@ -56,6 +57,7 @@ export default function Home() {
     const controller = new AbortController();
     const signal = controller.signal;
     cancelButton.current.onclick = () => {
+      setShowProgress(false);
       controller.abort("Aborted by user");
     };
 
@@ -137,9 +139,10 @@ export default function Home() {
         <h2>[GEOCRYPT]</h2>
         <h4> Encrypt &amp; Decrypt the easy way</h4>
         <br />
-        <div className={styles.card}>
+        <div className={styles.card} style={{ width: "20em" }}>
           <br />
           <HandleUpload setFiles={setFiles} files={files} />
+          <br />
           <HandlePassword setPassword={setPassword} />
           {showProgress ? (
             <span>

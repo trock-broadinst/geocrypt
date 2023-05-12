@@ -33,10 +33,8 @@ const HandlePassword = (props: {
     const password = passwordInput.current?.value;
     const confirmPassword = confirmPasswordInput.current?.value;
     const passwordErrorZone = passwordZone.current;
-    let pweOccured = false;
     const addPwError = (msg: string[]) => {
       if (passwordErrorZone) {
-        pweOccured = true;
         passwordErrorZone.innerHTML = "";
         msg.forEach((m) => {
           const p = document.createElement("p");
@@ -46,17 +44,23 @@ const HandlePassword = (props: {
         });
       }
     };
-    if (!password || !confirmPassword)
+    if (!password || !confirmPassword) {
+      setPassword(undefined);
       return addPwError(["please confirm password"]);
-    if (password !== confirmPassword)
+    } else if (password !== confirmPassword) {
+      setPassword(undefined);
       return addPwError(["passwords do not match"]);
-    const validatedList = passwordSchema.validate(password, { details: true });
-    if (typeof validatedList !== "boolean" && validatedList.length > 0)
-      addPwError(validatedList.map((x) => x.message));
-    if (pweOccured) return setPassword(undefined);
-    else {
-      if (passwordErrorZone) passwordErrorZone.innerHTML = "";
-      return setPassword(password);
+    } else {
+      const validatedList = passwordSchema.validate(password, {
+        details: true,
+      });
+      if (typeof validatedList !== "boolean" && validatedList.length > 0) {
+        setPassword(undefined);
+        return addPwError(validatedList.map((x) => x.message));
+      } else {
+        if (passwordErrorZone) passwordErrorZone.innerHTML = "";
+        return setPassword(password);
+      }
     }
   };
   return (

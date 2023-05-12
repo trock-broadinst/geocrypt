@@ -4,16 +4,15 @@
   background: rgba(var(--card-rgb), 0);
   border: 1px solid rgba(var(--card-border-rgb), .8);
   height: 15em;
-  width: 20em;
+  width: 100%;
   overflow: overlay;
-  resize: both;
+  resize: vertical;
 }
 
 .progressbar {
   background: rgba(var(--card-rgb), .9);
   border-radius: var(--border-radius);
   height: 2em;
-  width:20em;
 }
 .progressbar::-webkit-progress-bar {
   border-radius: var(--border-radius);
@@ -61,6 +60,7 @@
   padding: 1rem 1.2rem;
   color:var(--accent-major);
   font-weight: 700;
+  width: 100%;
   border-radius: var(--border-radius);
   background: rgba(var(--card-rgb), 0.2);
 }
