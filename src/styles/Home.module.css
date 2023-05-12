@@ -1,7 +1,32 @@
+.progressbar {
+  background: rgba(var(--card-rgb), .9);
+  border-radius: var(--border-radius);
+  height: 2em;
+  width:20em;
+}
+.progressbar::-webkit-progress-bar {
+  border-radius: var(--border-radius);
+  background-color: rgba(var(--card-rgb), 0.1);
+}
+.progressbar::-webkit-progress-value {
+  border-radius: var(--border-radius);
+  background-color: #00ff00; 
+  background-image: linear-gradient(
+        45deg, #aa87de 25%, 
+        transparent 25%, transparent 50%, 
+        #aa87de 50%, #aa87de 75%,
+        transparent 75%, transparent); 
+  animation: progressAnimationStrike 6s;
+}
+@keyframes progressAnimationStrike {
+  from { width: 0 }
+  to   { width: 100% }
+}
+
 .uploadbox {
   background: rgba(var(--card-rgb), 0.1);
   border: 5px solid rgba(var(--card-border-rgb), 0.45);
-  color: greenyellow;
+  color: #00ff00;
   padding: 1rem 1.2rem;
   border-radius: var(--border-radius);
   background: rgba(var(--card-rgb), 0);
@@ -28,7 +53,7 @@
 .bigbutton {
   border: 1px solid rgba(var(--card-border-rgb), 0.45);
   padding: 1rem 1.2rem;
-  color:greenyellow;
+  color:#00ff00;
   font-weight: 700;
   border-radius: var(--border-radius);
   background: rgba(var(--card-rgb), 0.2);

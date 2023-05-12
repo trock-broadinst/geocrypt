@@ -1,11 +1,7 @@
 - create password seperate react component
 - make password a password field with eyeball show
 - add loading indicator for client module
-- add download framework for client module to download large files
-- lighthouse/seo
-- handle corruption cases/empty
 - worth consideration: https://www.npmjs.com/package/native-file-system-adapter
-- files could be stored individually with an external encrypted spine file, therefore allowing more evil-ness
 - style progressbar
 - no progressbar on safari
 

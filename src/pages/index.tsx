@@ -18,58 +18,21 @@ import "core-js";
 // import "core-js/features/set-immediate";
 import { showSaveFilePicker } from "native-file-system-adapter";
 import HandleUpload from "@/utils/uploader";
+import HandlePassword from "@/utils/password";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const passwordSchema = new PasswordValidator();
-passwordSchema
-  .is()
-  .min(8) // Minimum length 8
-  .is()
-  .max(100) // Maximum length 100
-  .has()
-  .uppercase() // Must have uppercase letters
-  .has()
-  .lowercase() // Must have lowercase letters
-  .has()
-  .digits(2) // Must have at least 2 digits
-  .has()
-  .not()
-  .spaces();
-
 export default function Home() {
-  const passwordInput = React.useRef<HTMLInputElement>(null);
-  const confirmPasswordInput = React.useRef<HTMLInputElement>(null);
-  const passwordZone = React.useRef<HTMLInputElement>(null);
-
   const [files, setFiles] = React.useState<File[]>([]);
-
-  const getPassword = () => {
-    const password = passwordInput.current?.value;
-    const confirmPassword = confirmPasswordInput.current?.value;
-    const passwordErrorZone = passwordZone.current;
-    let pweOccured = false;
-    const addPwError = (msg: string[]) => {
-      if (passwordErrorZone) {
-        pweOccured = true;
-        passwordErrorZone.innerHTML = "";
-        msg.forEach((m) => {
-          const p = document.createElement("p");
-          p.setAttribute("style", "color: red");
-          p.innerHTML = m;
-          passwordErrorZone.appendChild(p);
-        });
-      }
-    };
-    if (!password || !confirmPassword)
-      return addPwError(["please confirm password"]);
-    if (password !== confirmPassword)
-      return addPwError(["passwords do not match"]);
-    const validatedList = passwordSchema.validate(password, { details: true });
-    if (typeof validatedList !== "boolean" && validatedList.length > 0)
-      addPwError(validatedList.map((x) => x.message));
-    if (pweOccured) return undefined;
-    else return password;
+  const [password, setPassword] = React.useState<string | undefined>(undefined);
+  const [showProgress, setShowProgress] = React.useState<boolean>(false);
+  const progressBar = React.useRef<HTMLProgressElement | null>(null);
+  const cancelButton = React.useRef<HTMLButtonElement | null>(null);
+  const onRefPb = (node: HTMLProgressElement | null) => {
+    if (node) progressBar.current = node;
+  };
+  const onRefCb = (node: HTMLButtonElement | null) => {
+    if (node) cancelButton.current = node;
   };
 
   //run encryptAndDownload when enter key is pressed
@@ -84,9 +47,11 @@ export default function Home() {
   });
 
   const encryptAndDownload = async () => {
-    const password = getPassword();
-    if (!password || !passwordZone.current) return;
-
+    await setShowProgress(true);
+    console.log(password, progressBar.current, cancelButton.current);
+    if (password === undefined || !progressBar.current || !cancelButton.current)
+      return;
+    console.log("encrypting and downloading");
     //download stream
     const fileHandle = await showSaveFilePicker({
       suggestedName: `geocrypt-${Date.now().toString()}.html`,
@@ -98,39 +63,26 @@ export default function Home() {
     // create a FileSystemWritableFileStream to write to
     const writableStream = await fileHandle.createWritable();
 
-    passwordZone.current.innerHTML = "";
-    const zipProgress = document.createElement("progress");
-    zipProgress.value = 0;
-    zipProgress.max = 0;
-    passwordZone.current.appendChild(zipProgress);
+    progressBar.current.value = 0;
+    progressBar.current.max = 0; //TODO: why won't it set progbar
 
     const controller = new AbortController();
     const signal = controller.signal;
-    const abortButton = document.createElement("button");
-    abortButton.onclick = () => {
+    cancelButton.current.onclick = () => {
       controller.abort("Aborted by user");
-      zipProgress.remove();
-      abortButton.remove();
-      compressingText.remove();
     };
-    abortButton.textContent = "✖";
-    abortButton.title = "Abort";
-    passwordZone.current.appendChild(abortButton);
-
-    const compressingText = document.createElement("p");
-    compressingText.textContent = "Compressing...";
-    passwordZone.current?.appendChild(compressingText);
-
     const options: ZipWriterAddDataOptions = {
       password: password,
       signal,
       onstart(max: number) {
-        zipProgress.max = max;
+        if (progressBar.current) progressBar.current.max = max;
         return undefined;
       },
       onprogress(index: number, max: number) {
-        zipProgress.value = index;
-        zipProgress.max = max;
+        if (progressBar.current) {
+          progressBar.current.value = index;
+          progressBar.current.max = max;
+        }
         return undefined;
       },
     };
@@ -155,11 +107,13 @@ export default function Home() {
       .then(() => writableStream.write(vfPart2))
       .then(() => writableStream.close())
       .finally(() => {
-        zipProgress.remove();
-        abortButton.remove();
-        compressingText.remove();
+        setShowProgress(false);
+        alert("Download complete");
       })
-      .catch((err) => alert(err));
+      .catch((err) => {
+        setShowProgress(false);
+        alert(err);
+      });
   };
 
   return (
@@ -184,30 +138,22 @@ export default function Home() {
         <div className={styles.card}>
           <br />
           <HandleUpload setFiles={setFiles} files={files} />
-          <input
-            ref={passwordInput}
-            type="text"
-            id="password1"
-            className={styles.textbox}
-            placeholder="Enter password"
-          />
-          <br />
-          <input
-            ref={confirmPasswordInput}
-            type="text"
-            id="password2"
-            className={styles.textbox}
-            placeholder="Confirm password"
-          />
-          <br />
-          <div ref={passwordZone}></div>
-          <br />
-          <button
-            className={styles.bigbutton}
-            onClick={() => encryptAndDownload()}
-          >
-            Encrypt files and download
-          </button>
+          <HandlePassword setPassword={setPassword} />
+          {showProgress ? (
+            <span>
+              <progress ref={onRefPb} className={styles.progressbar}></progress>
+              <button ref={onRefCb} className={styles.bigbutton} title="abort">
+                ✖
+              </button>
+            </span>
+          ) : (
+            <button
+              className={styles.bigbutton}
+              onClick={() => encryptAndDownload()}
+            >
+              Encrypt files and download
+            </button>
+          )}
         </div>
 
         <h2 className={styles.description}>

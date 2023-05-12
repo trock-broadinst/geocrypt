@@ -1,4 +1,3 @@
-import { files } from "jszip";
 import { FileUploader } from "react-drag-drop-files";
 import styles from "@/styles/Home.module.css";
 import React, { Dispatch, SetStateAction } from "react";
