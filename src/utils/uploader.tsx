@@ -61,7 +61,13 @@ const HandleUpload = (props: {
               {file.name}{" "}
               <p>
                 {fancyBytes(file.size)}{" "}
-                <button onClick={() => removeFile(file.name)}>✖</button>
+                <button
+                  className={styles.bigbutton}
+                  style={{ padding: "0.3em" }}
+                  onClick={() => removeFile(file.name)}
+                >
+                  ✖
+                </button>
               </p>
               <hr />
             </div>

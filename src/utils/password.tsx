@@ -19,7 +19,6 @@ passwordSchema
   .spaces();
 
 const HandlePassword = (props: {
-  // password: string | undefined;
   setPassword: Dispatch<SetStateAction<string | undefined>>;
 }) => {
   const { setPassword } = props;
@@ -66,6 +65,7 @@ const HandlePassword = (props: {
         type="text"
         id="password1"
         className={styles.textbox}
+        style={{ marginBottom: "0.5rem" }}
         onChange={getPassword}
         placeholder="Enter password"
       />

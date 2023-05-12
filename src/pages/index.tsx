@@ -151,6 +151,7 @@ export default function Home() {
           ) : (
             <button
               className={styles.bigbutton}
+              style={{ width: "100%" }}
               onClick={() => encryptAndDownload()}
             >
               Encrypt files and download
