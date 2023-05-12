@@ -51,26 +51,16 @@ export default function Home() {
     console.log(password, progressBar.current, cancelButton.current);
     if (password === undefined || !progressBar.current || !cancelButton.current)
       return;
-    console.log("encrypting and downloading");
-    //download stream
-    const fileHandle = await showSaveFilePicker({
-      suggestedName: `geocrypt-${Date.now().toString()}.html`,
-      accepts: [{ accept: { "text/html": [".html"] } }],
-      excludeAcceptAllOption: false, // default
-    });
-
-    // must be at top of function for security purposes
-    // create a FileSystemWritableFileStream to write to
-    const writableStream = await fileHandle.createWritable();
 
     progressBar.current.value = 0;
-    progressBar.current.max = 0; //TODO: why won't it set progbar
+    progressBar.current.max = 0;
 
     const controller = new AbortController();
     const signal = controller.signal;
     cancelButton.current.onclick = () => {
       controller.abort("Aborted by user");
     };
+
     const options: ZipWriterAddDataOptions = {
       password: password,
       signal,
@@ -90,26 +80,40 @@ export default function Home() {
     const zipWriter = new ZipWriter(new BlobWriter("application/zip"), {
       bufferedWrite: true,
     });
-
-    await Promise.all(
-      files.map(
-        (file) =>
-          file && zipWriter.add(file.name, new BlobReader(file), options)
-      )
+    const filePromises = files.map(
+      (file) => file && zipWriter.add(file.name, new BlobReader(file), options)
     );
-
-    await writableStream.write(vfPart1);
-    await zipWriter
-      .close()
-      .then((blob) => blob.arrayBuffer())
-      .then((arb) => b64.encode(Buffer.from(arb)))
-      .then((wst) => writableStream.write(wst))
-      .then(() => writableStream.write(vfPart2))
-      .then(() => writableStream.close())
-      .finally(() => {
-        setShowProgress(false);
-        alert("Download complete");
-      })
+    //download stream
+    await showSaveFilePicker({
+      suggestedName: `geocrypt-${Date.now().toString()}.html`,
+      accepts: [{ accept: { "text/html": [".html"] } }],
+      excludeAcceptAllOption: false, // default
+    })
+      .then((fileHandle) => fileHandle.createWritable())
+      .then((writableStream) =>
+        Promise.all(filePromises)
+          .then(() => writableStream.write(vfPart1))
+          .then(() => {
+            if (!progressBar.current || !cancelButton.current)
+              throw new Error("progressBar or cancelButton is null");
+            progressBar.current.max = 10;
+            progressBar.current.value = 2;
+          })
+          .then(() => zipWriter.close())
+          .then((blob) => blob.arrayBuffer())
+          .then((arb) => b64.encode(Buffer.from(arb)))
+          .then((wst) => writableStream.write(wst))
+          .then(() => {
+            if (!progressBar.current || !cancelButton.current)
+              throw new Error("progressBar or cancelButton is null");
+            progressBar.current.max = 10;
+            progressBar.current.value = 8;
+          })
+          .then(() => writableStream.write(vfPart2))
+          .then(() => writableStream.close())
+      )
+      .then(() => alert("Download complete"))
+      .finally(() => setShowProgress(false))
       .catch((err) => {
         setShowProgress(false);
         alert(err);
@@ -155,7 +159,7 @@ export default function Home() {
             </button>
           )}
         </div>
-
+        <br />
         <h2 className={styles.description}>
           <div>Warning: it is not advised to use firefox for this website</div>
         </h2>
