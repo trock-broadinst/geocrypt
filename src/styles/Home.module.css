@@ -13,6 +13,7 @@
   background: rgba(var(--card-rgb), .9);
   border-radius: var(--border-radius);
   height: 2em;
+  width: 100%;
 }
 .progressbar::-webkit-progress-bar {
   border-radius: var(--border-radius);

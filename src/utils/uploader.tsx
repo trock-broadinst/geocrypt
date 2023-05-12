@@ -63,17 +63,14 @@ const HandleUpload = (props: {
         {files.length > 0 &&
           files.map((file) => (
             <div className={styles.filelistbox} key={file.name}>
-              {file.name}{" "}
-              <p>
-                {fancyBytes(file.size)}{" "}
-                <button
-                  className={styles.bigbutton}
-                  style={{ padding: "0.3em" }}
-                  onClick={() => removeFile(file.name)}
-                >
-                  ✖
-                </button>
-              </p>
+              {file.name} <p>{fancyBytes(file.size)} </p>
+              <button
+                className={styles.bigbutton}
+                style={{ padding: "0.3em" }}
+                onClick={() => removeFile(file.name)}
+              >
+                ✖
+              </button>
               <hr />
             </div>
           ))}

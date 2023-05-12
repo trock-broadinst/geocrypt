@@ -139,13 +139,13 @@ export default function Home() {
         <h2>[GEOCRYPT]</h2>
         <h4> Encrypt &amp; Decrypt the easy way</h4>
         <br />
-        <div className={styles.card} style={{ width: "20em" }}>
+        <div className={styles.card} style={{ width: "30em" }}>
           <br />
           <HandleUpload setFiles={setFiles} files={files} />
           <br />
           <HandlePassword setPassword={setPassword} />
           {showProgress ? (
-            <span>
+            <span style={{ width: "100%" }}>
               <progress ref={onRefPb} className={styles.progressbar}></progress>
               <button ref={onRefCb} className={styles.bigbutton} title="abort">
                 ✖
