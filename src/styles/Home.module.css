@@ -21,7 +21,7 @@
 }
 .progressbar::-webkit-progress-value {
   border-radius: var(--border-radius);
-  background-color:#aa87de; 
+  background-color: var(--accent-minor); 
   animation: progressAnimationStrike 6s;
 }
 @keyframes progressAnimationStrike {
@@ -32,7 +32,7 @@
 .uploadbox {
   background: rgba(var(--card-rgb), 0.1);
   border: 5px solid rgba(var(--card-border-rgb), 0.45);
-  color: #00ff00;
+  color: var(--accent-major);
   padding: 1rem 1.2rem;
   border-radius: var(--border-radius);
   background: rgba(var(--card-rgb), 0);
@@ -59,7 +59,7 @@
 .bigbutton {
   border: 1px solid rgba(var(--card-border-rgb), 0.45);
   padding: 1rem 1.2rem;
-  color:#00ff00;
+  color:var(--accent-major);
   font-weight: 700;
   border-radius: var(--border-radius);
   background: rgba(var(--card-rgb), 0.2);
