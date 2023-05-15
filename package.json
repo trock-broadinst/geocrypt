@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@types/base64-async": "^2.1.1",
+    "@types/core-js": "^2.5.5",
     "@types/crypto-js": "^4.1.1",
     "@types/file-saver": "^2.0.5",
     "@types/wicg-file-system-access": "^2020.9.6"

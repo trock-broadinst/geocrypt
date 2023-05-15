@@ -1202,6 +1202,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/core-js@^2.5.5":
+  version "2.5.5"
+  resolved "https://registry.yarnpkg.com/@types/core-js/-/core-js-2.5.5.tgz#dc5a013ee0b23bd5ac126403854fadabb4f24f75"
+  integrity sha512-C4vwOHrhsvxn7UFyk4NDQNUpgNKdWsT/bL39UWyD75KSEOObZSKa9mYDOCM5FGeJG2qtbG0XiEbUKND2+j0WOg==
+
 "@types/crypto-js@^4.1.1":
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-4.1.1.tgz#602859584cecc91894eb23a4892f38cfa927890d"
