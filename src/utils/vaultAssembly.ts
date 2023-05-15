@@ -18,10 +18,20 @@ const loadFiles = async () => {
         .then(fileBlob => {
             if (fileBlob) {
                 const zipFileReader = new window.zip.BlobReader(fileBlob);
-                const zipReader = new window.zip.ZipReader(zipFileReader);
+                const fileList = document.getElementById("fileList");
+                const progressBar = document.createElement("progress");
+                progressBar.max = 100;
+                progressBar.value = 0;
+                document.body.appendChild(progressBar);
+
+                const zipReader = new window.zip.ZipReader(zipFileReader, {
+                    onprogress: (index, max) => {
+                        progressBar.value = index / max * 100;
+                    }
+                });
 
                 zipReader.getEntries().then((zipFiles) => {
-                    document.getElementById("fileList").innerHTML = "";
+                    fileList.innerHTML = "";
                     zipFiles.forEach(async function (file) {
                         const link = document.createElement("a");
                         link.href = "#";
@@ -39,7 +49,8 @@ const loadFiles = async () => {
                         link.innerHTML = file.filename;
                         const listEl = document.createElement("li")
                         listEl.appendChild(link);
-                        document.getElementById("fileList").appendChild(listEl);
+                        fileList.appendChild(listEl);
+                        document.body.removeChild(progressBar);
                     });
                 });
                 // await zipReader.close();//TODO: you may not be able to close this because files would need loading
@@ -59,12 +70,12 @@ margin: auto;
 
 <body>
 <h1>Open GeoCrypt</h1>
-<p>Enter GeoCrypt Password.</p><input type="text" id="passwordBox" name="passwordBox"
+<p>Enter GeoCrypt Password.</p><input type="password" id="passwordBox" name="passwordBox"
 placeholder="Type Password Here"> <button onclick="loadFiles()">Open</button>
 <ol id="fileList"></ol>
 <hr>
 <a href="https://geocrypt.me">Made with GeoCrypt</a>
-<p>warning: may not work with large files on firefox</p>
+<p>warning: please be patient after opening archive, may not work with large files on firefox</p>
 </body>
 <script>
 document.getElementById("passwordBox").addEventListener("keypress", function(event) {

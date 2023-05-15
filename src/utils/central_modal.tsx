@@ -102,7 +102,6 @@ export default function CentralModal() {
       })
       .then(() => writableStream.write(new TextEncoder().encode(vfPart2)))
       .then(() => writableStream.close())
-      // .then(() => alert("Download complete"))
       .finally(() => setShowProgress(false))
       .catch((err) => {
         setShowProgress(false);
