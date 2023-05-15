@@ -75,3 +75,6 @@ document.getElementById("passwordBox").addEventListener("keypress", function(eve
 });
 </script>
 </html>`;
+
+export const vaultOpenerSize = new TextEncoder().encode(vfPart1).byteLength +
+            new TextEncoder().encode(vfPart2).byteLength

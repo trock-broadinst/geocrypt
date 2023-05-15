@@ -1,6 +1,6 @@
 import styles from "@/styles/Home.module.css";
 import React from "react";
-import { vfPart1, vfPart2 } from "@/utils/vaultAssembly_new";
+import { vaultOpenerSize, vfPart1, vfPart2 } from "@/utils/vaultAssembly";
 import {
   BlobReader,
   BlobWriter,
@@ -8,9 +8,9 @@ import {
   ZipWriterAddDataOptions,
 } from "@zip.js/zip.js";
 import b64 from "base64-async";
-import { showSaveFilePicker } from "native-file-system-adapter";
 import HandleUpload from "@/utils/uploader";
 import HandlePassword from "@/utils/password";
+import streamSaver from "streamsaver";
 
 export default function CentralModal() {
   const [files, setFiles] = React.useState<File[]>([]);
@@ -75,36 +75,34 @@ export default function CentralModal() {
     const filePromises = files.map(
       (file) => file && zipWriter.add(file.name, new BlobReader(file), options)
     );
+    const totalSize = vaultOpenerSize + files.reduce((a, b) => a + b.size, 0);
     //download stream
-    await showSaveFilePicker({
-      suggestedName: `geocrypt-${Date.now().toString()}.html`,
-      accepts: [{ accept: { "text/html": [".html"] } }],
-      excludeAcceptAllOption: false, // default
-    })
-      .then((fileHandle) => fileHandle.createWritable())
-      .then((writableStream) =>
-        Promise.all(filePromises)
-          .then(() => writableStream.write(vfPart1))
-          .then(() => {
-            if (!progressBar.current || !cancelButton.current)
-              throw new Error("progressBar or cancelButton is null");
-            progressBar.current.max = 10;
-            progressBar.current.value = 2;
-          })
-          .then(() => zipWriter.close())
-          .then((blob) => blob.arrayBuffer())
-          .then((arb) => b64.encode(Buffer.from(arb)))
-          .then((wst) => writableStream.write(wst))
-          .then(() => {
-            if (!progressBar.current || !cancelButton.current)
-              throw new Error("progressBar or cancelButton is null");
-            progressBar.current.max = 10;
-            progressBar.current.value = 8;
-          })
-          .then(() => writableStream.write(vfPart2))
-          .then(() => writableStream.close())
-      )
-      .then(() => alert("Download complete"))
+    const writableStream = streamSaver
+      .createWriteStream(`geocrypt-${Date.now().toString()}.html`, {
+        size: totalSize,
+      })
+      .getWriter();
+    Promise.all(filePromises)
+      .then(() => writableStream.write(new TextEncoder().encode(vfPart1)))
+      .then(() => {
+        if (!progressBar.current || !cancelButton.current)
+          throw new Error("progressBar or cancelButton is null");
+        progressBar.current.max = 10;
+        progressBar.current.value = 2;
+      })
+      .then(() => zipWriter.close())
+      .then((blob) => blob.arrayBuffer())
+      .then((arb) => b64.encode(Buffer.from(arb)))
+      .then((wst) => writableStream.write(new TextEncoder().encode(wst)))
+      .then(() => {
+        if (!progressBar.current || !cancelButton.current)
+          throw new Error("progressBar or cancelButton is null");
+        progressBar.current.max = 10;
+        progressBar.current.value = 8;
+      })
+      .then(() => writableStream.write(new TextEncoder().encode(vfPart2)))
+      .then(() => writableStream.close())
+      // .then(() => alert("Download complete"))
       .finally(() => setShowProgress(false))
       .catch((err) => {
         setShowProgress(false);
