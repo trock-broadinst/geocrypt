@@ -62,7 +62,7 @@ test('Tests uploading and encrypting two 25m large files', async ({ page }) => {
   await page.goto('http://localhost:3000/');
   await page.getByText('0Kb/250MB').click();
   const fileChooser = await fileChooserPromise;
-  await fileChooser.setFiles([randomLargeFile(),randomLargeFile('testfile.abc.xyz')]);
+  await fileChooser.setFiles([randomLargeFile('testfile.zxc.asd',25),randomLargeFile('testfile.abc.xyz',25)]);
   expect(await page.locator('div').filter({ hasText: "25MB" }).count()).toBe(5);
   await page.getByPlaceholder('Enter password').click();
   await page.getByPlaceholder('Enter password').fill(password);

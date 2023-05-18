@@ -36,10 +36,10 @@ export function generateRandomString(minlength = 8, maxlength = 100) {
         buffer: Buffer.from(generateRandomString(50,1000)),
       }
 }
-  export function randomLargeFile(name: string = 'testfile.txt') {
+  export function randomLargeFile(name: string = 'testfile.txt', size: number = 49) {
     return {
         name,
         mimeType: 'text/plain',
-        buffer: randomBytes(49000000),
+        buffer: randomBytes(size * 1000000),
       }
 }

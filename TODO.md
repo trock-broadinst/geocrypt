@@ -1,11 +1,5 @@
 - full volume encryption, maybe with https://www.npmjs.com/package/signal-stream
-- tests
- - snapshot tests(per browser)
- - unit tests
-    - upload small file
-    - upload large file
-    - upload file exceeding limit
-    - add/remove many files
+- multibrowser tests(off gh only)
 
 - link leads
  - https://www.npmjs.com/package/libarchive.js
