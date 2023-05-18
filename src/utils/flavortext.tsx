@@ -10,8 +10,10 @@ const FlavorText = () => {
           Secure <span>⤵</span>
         </h2>
         <p>
-          Your files will be compressed and encrypted with AES-CTR, an
-          industry-standard security algorithm
+          Your files will be compressed and encrypted with WINZIP-AES, an
+          industry-standard security algorithm. GeoCrypt is fully open source, with a pipeline that is as transparent as possible, ensuring your browser runs exactly what's in <a href="https://github.com/trock-broadinst/geocrypt>the repo</a>. Additionally, this software runs entirely offline, and for more paranoid users, we advise you save it as a PWA and use it with airplane mode enabled.
+      
+
         </p>
       </div>
       <div className={styles.card}>
@@ -26,12 +28,14 @@ const FlavorText = () => {
       </div>
       <div className={styles.card}>
         <h2>
-          Is this legal? <span>⤵</span>
+          Convenient <span>⤵</span>
         </h2>
         <p>
-          Some nations have laws against encryption, such as Australia. We
-          don&apos;t care about your location, so use at your own risk. We are
-          not responsible for data loss, illegal use, or any other damages.
+          We recommend installing GeoCrypt as a PWA for the added security of it working fully offline, and convenience of being able to access it outside a browser.
+            
+     
+     
+      
         </p>
       </div>
       <div className={styles.card}>
