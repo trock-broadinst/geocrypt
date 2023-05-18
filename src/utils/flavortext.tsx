@@ -11,8 +11,8 @@ const FlavorText = () => {
         </h2>
         <p>
           Your files will be compressed and encrypted with WINZIP-AES, an
-          industry-standard security algorithm. GeoCrypt is fully open source, with a pipeline that is as transparent as possible, ensuring your browser runs exactly what's in <a href="https://github.com/trock-broadinst/geocrypt>the repo</a>. Additionally, this software runs entirely offline, and for more paranoid users, we advise you save it as a PWA and use it with airplane mode enabled.
-      
+          industry-standard security algorithm. GeoCrypt is fully open source, with a pipeline that is as transparent as possible, ensuring your browser runs exactly what's in <a href="https://github.com/trock-broadinst/geocrypt">the repo</a>. Additionally, this software runs entirely offline, and for more paranoid users, we advise you save it as a PWA and use it with airplane mode enabled.
+ 
 
         </p>
       </div>
