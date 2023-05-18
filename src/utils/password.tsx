@@ -18,9 +18,9 @@ passwordSchema
   .not()
   .spaces();
 
-const HandlePassword = (props: {
+function HandlePassword(props: {
   setPassword: Dispatch<SetStateAction<string | undefined>>;
-}) => {
+}) {
   const { setPassword } = props;
   const passwordInput = React.useRef<HTMLInputElement>(null);
   const confirmPasswordInput = React.useRef<HTMLInputElement>(null);
@@ -47,21 +47,20 @@ const HandlePassword = (props: {
     if (!password || !confirmPassword) {
       setPassword(undefined);
       return addPwError(["please confirm password"]);
-    } else if (password !== confirmPassword) {
+    }
+    if (password !== confirmPassword) {
       setPassword(undefined);
       return addPwError(["passwords do not match"]);
-    } else {
-      const validatedList = passwordSchema.validate(password, {
-        details: true,
-      });
-      if (typeof validatedList !== "boolean" && validatedList.length > 0) {
-        setPassword(undefined);
-        return addPwError(validatedList.map((x) => x.message));
-      } else {
-        if (passwordErrorZone) passwordErrorZone.innerHTML = "";
-        return setPassword(password);
-      }
     }
+    const validatedList = passwordSchema.validate(password, {
+      details: true,
+    });
+    if (typeof validatedList !== "boolean" && validatedList.length > 0) {
+      setPassword(undefined);
+      return addPwError(validatedList.map((x) => x.message));
+    }
+    if (passwordErrorZone) passwordErrorZone.innerHTML = "";
+    return setPassword(password);
   };
   return (
     <>
@@ -86,16 +85,17 @@ const HandlePassword = (props: {
       />
       <br />
       <button
+        type="button"
         style={{ width: "100%" }}
         onClick={() => setPasswordVisible(!passwordVisible)}
       >
         ⏿
       </button>
       <br />
-      <div ref={passwordZone}></div>
+      <div ref={passwordZone} />
       <br />
     </>
   );
-};
+}
 
 export default HandlePassword;

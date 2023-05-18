@@ -37,3 +37,6 @@ next-env.d.ts
 keys/*
 
 .out/*
+/test-results/
+/playwright-report/
+/playwright/.cache/

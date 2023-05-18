@@ -1,5 +1,6 @@
 import styles from "@/styles/Home.module.css";
-import React from "react";
+import HandlePassword from "@/utils/password";
+import HandleUpload from "@/utils/uploader";
 import { vaultOpenerSize, vfPart1, vfPart2 } from "@/utils/vaultAssembly";
 import {
   BlobReader,
@@ -8,8 +9,7 @@ import {
   ZipWriterAddDataOptions,
 } from "@zip.js/zip.js";
 import b64 from "base64-async";
-import HandleUpload from "@/utils/uploader";
-import HandlePassword from "@/utils/password";
+import React from "react";
 import streamSaver from "streamsaver";
 
 export default function CentralModal() {
@@ -25,17 +25,6 @@ export default function CentralModal() {
     if (node) cancelButton.current = node;
   };
 
-  //run encryptAndDownload when enter key is pressed
-  React.useEffect(() => {
-    const handleEnter = (e: KeyboardEvent) => {
-      if (e.key === "Enter") encryptAndDownload();
-    };
-    document.addEventListener("keydown", handleEnter);
-    return () => {
-      document.removeEventListener("keydown", handleEnter);
-    };
-  });
-
   const encryptAndDownload = async () => {
     if (password !== undefined) await setShowProgress(true);
     if (files.length < 1 || !progressBar.current || !cancelButton.current) {
@@ -47,14 +36,14 @@ export default function CentralModal() {
     progressBar.current.max = 0;
 
     const controller = new AbortController();
-    const signal = controller.signal;
+    const { signal } = controller;
     cancelButton.current.onclick = () => {
       setShowProgress(false);
       controller.abort("Aborted by user");
     };
 
     const options: ZipWriterAddDataOptions = {
-      password: password,
+      password,
       signal,
       onstart(max: number) {
         if (progressBar.current) progressBar.current.max = max;
@@ -76,7 +65,7 @@ export default function CentralModal() {
       (file) => file && zipWriter.add(file.name, new BlobReader(file), options)
     );
     const totalSize = vaultOpenerSize + files.reduce((a, b) => a + b.size, 0);
-    //download stream
+    // download stream
     const writableStream = streamSaver
       .createWriteStream(`geocrypt-${Date.now().toString()}.html`, {
         size: totalSize,
@@ -109,30 +98,45 @@ export default function CentralModal() {
       });
   };
 
+  // run encryptAndDownload when enter key is pressed
+  React.useEffect(() => {
+    const handleEnter = (e: KeyboardEvent) => {
+      if (e.key === "Enter") encryptAndDownload();
+    };
+    document.addEventListener("keydown", handleEnter);
+    return () => {
+      document.removeEventListener("keydown", handleEnter);
+    };
+  });
+
   return (
-    <>
-      <div className={styles.card} style={{ width: "30em" }}>
-        <br />
-        <HandleUpload setFiles={setFiles} files={files} />
-        <br />
-        <HandlePassword setPassword={setPassword} />
-        {showProgress ? (
-          <span style={{ width: "100%" }}>
-            <progress ref={onRefPb} className={styles.progressbar}></progress>
-            <button ref={onRefCb} className={styles.bigbutton} title="abort">
-              ✖
-            </button>
-          </span>
-        ) : (
+    <div className={styles.card} style={{ width: "30em" }}>
+      <br />
+      <HandleUpload setFiles={setFiles} files={files} />
+      <br />
+      <HandlePassword setPassword={setPassword} />
+      {showProgress ? (
+        <span style={{ width: "100%" }}>
+          <progress ref={onRefPb} className={styles.progressbar} />
           <button
+            type="button"
+            ref={onRefCb}
             className={styles.bigbutton}
-            style={{ width: "100%" }}
-            onClick={() => encryptAndDownload()}
+            title="abort"
           >
-            Encrypt files and download
+            ✖
           </button>
-        )}
-      </div>
-    </>
+        </span>
+      ) : (
+        <button
+          type="button"
+          className={styles.bigbutton}
+          style={{ width: "100%" }}
+          onClick={() => encryptAndDownload()}
+        >
+          Encrypt files and download
+        </button>
+      )}
+    </div>
   );
 }

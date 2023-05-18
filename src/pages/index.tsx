@@ -1,19 +1,16 @@
+import styles from "@/styles/Home.module.css";
+import "core-js";
+import { Inter } from "next/font/google";
 import Head from "next/head";
 import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
-import React from "react";
-import "core-js";
 // import "core-js/features/set-immediate";
 import FlavorText from "@/utils/flavortext";
 // import CentralModal from "@/utils/central_modal";
 import dynamic from "next/dynamic";
-const CentralModal = dynamic(
-  () => {
-    return import("../utils/central_modal");
-  },
-  { ssr: false }
-);
+
+const CentralModal = dynamic(() => import("../utils/central_modal"), {
+  ssr: false,
+});
 
 const inter = Inter({ subsets: ["latin"] });
 

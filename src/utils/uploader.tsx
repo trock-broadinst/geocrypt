@@ -1,28 +1,27 @@
-import { FileUploader } from "react-drag-drop-files";
 import styles from "@/styles/Home.module.css";
 import React, { Dispatch, SetStateAction } from "react";
+import { FileUploader } from "react-drag-drop-files";
 
-const maxSize = 2.5e8; //250MB
+const maxSize = 2.5e8; // 250MB
 
 const fancyBytes = (bytes: number) => {
   const size = Math.floor(bytes / 1e6);
   return size < 1 ? `${Math.floor(bytes / 1e3)}Kb` : `${size}Mb`;
 };
 
-const HandleUpload = (props: {
+function HandleUpload(props: {
   files: File[];
   setFiles: Dispatch<SetStateAction<File[]>>;
-}) => {
+}) {
   const { files, setFiles } = props;
   const [totalSize, setTotalSize] = React.useState<number>(0);
 
   const calculateSize = (newFiles: File[]) => {
-    //check total filesize
-    const totalSize = newFiles.reduce((a, b) => a + b.size, 0);
+    // check total filesize
+    const newSize = newFiles.reduce((a, b) => a + b.size, 0);
 
-    if (totalSize > maxSize)
-      return alert("Total file size cannot exceed 250MB");
-    setTotalSize(totalSize);
+    if (newSize > maxSize) return alert("Total file size cannot exceed 250MB");
+    return setTotalSize(newSize);
   };
 
   const addFiles = (initialList: File[]) => {
@@ -48,12 +47,7 @@ const HandleUpload = (props: {
   };
   return (
     <>
-      <FileUploader
-        multiple={true}
-        required={true}
-        handleChange={addFiles}
-        name="file"
-      >
+      <FileUploader multiple required handleChange={addFiles} name="file">
         <div className={styles.uploadbox}>
           Drag &amp; Drop files here <p>{fancyBytes(totalSize)}/250MB</p>
         </div>
@@ -65,6 +59,7 @@ const HandleUpload = (props: {
             <div className={styles.filelistbox} key={file.name}>
               {file.name} <p>{fancyBytes(file.size)} </p>
               <button
+                type="button"
                 className={styles.bigbutton}
                 style={{ padding: "0.3em" }}
                 onClick={() => removeFile(file.name)}
@@ -77,6 +72,6 @@ const HandleUpload = (props: {
       </div>
     </>
   );
-};
+}
 
 export default HandleUpload;

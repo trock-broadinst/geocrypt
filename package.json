@@ -31,11 +31,15 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.33.0",
     "@types/base64-async": "^2.1.1",
     "@types/core-js": "^2.5.5",
     "@types/crypto-js": "^4.1.1",
     "@types/file-saver": "^2.0.5",
     "@types/streamsaver": "^2.0.1",
-    "@types/wicg-file-system-access": "^2020.9.6"
+    "@types/wicg-file-system-access": "^2020.9.6",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.8.0",
+    "prettier": "^2.8.8"
   }
 }

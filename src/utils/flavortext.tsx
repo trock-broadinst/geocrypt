@@ -1,8 +1,8 @@
 import styles from "@/styles/Home.module.css";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
-const FlavorText = () => {
+function FlavorText() {
   return (
     <div className={styles.grid}>
       <div className={styles.card}>
@@ -55,6 +55,6 @@ const FlavorText = () => {
       <Image src="/edisys.png" alt="edisys logo" width="200" height="100" />
     </div>
   );
-};
+}
 
 export default FlavorText;
