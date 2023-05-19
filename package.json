@@ -8,7 +8,8 @@
     "serve": "npx serve@latest out",
     "start": "next start",
     "export": "next export",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generateScreenshots":"npx playwright test --update-snapshots"
   },
   "dependencies": {
     "@types/node": "18.16.1",
