@@ -65,7 +65,7 @@ function FlavorText() {
       </div>
       <br />
       copyright 2023
-      <Image src="/edisys.png" alt="edisys logo" width="200" height="100" />
+      <Image src="/edisys.svg" alt="edisys logo" width="200" height="100" />
     </div>
   );
 }
