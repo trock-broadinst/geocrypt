@@ -18,7 +18,6 @@ export default function Home() {
           alt="GeoCrypt Logo"
           width={300}
           height={300}
-          priority
         />
         <h1> 500 </h1>
         <h4> Critical Server Error </h4>

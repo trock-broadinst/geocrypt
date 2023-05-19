@@ -18,7 +18,6 @@ export default function Home() {
           alt="GeoCrypt Logo"
           width={300}
           height={300}
-          priority
         />
         <h1> 404 </h1>
         <h4> Error: page not found </h4>

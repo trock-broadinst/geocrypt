@@ -37,7 +37,6 @@ export default function Home() {
           alt="GeoCrypt Logo"
           width={300}
           height={300}
-          priority
         />
         <h1> GeoCrypt </h1>
         <h4> Encrypt &amp; Decrypt the easy way</h4>
