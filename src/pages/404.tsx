@@ -22,7 +22,7 @@ export default function Home() {
         />
         <h1> 404 </h1>
         <h4> Error: page not found </h4>
-        <Link href="/" className={styles.link}>
+        <Link href="/" className={styles.link} passHref>
           Go home
         </Link>
       </main>

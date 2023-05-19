@@ -53,6 +53,7 @@ function FlavorText() {
         <Link
           className={styles.link}
           href="https://ko-fi.com/edisys/?hidefeed=true&widget=true&embed=true&preview=true"
+          passHref
         >
           With Ko-fi
         </Link>
