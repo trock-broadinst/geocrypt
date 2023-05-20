@@ -1,10 +1,10 @@
 import styles from "@/styles/Home.module.css";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = localFont({ src: "../styles/Inter-Regular.ttf" });
 
 export default function Home() {
   return (

@@ -5,6 +5,10 @@ test.use({
     colorScheme: 'light'
 });
 
+test.beforeEach(async ({}, testInfo) => {
+    testInfo.snapshotSuffix = '';
+  });
+
 test("basic snapshot", async ({ page }) => {
     await page.goto('http://localhost:3000/');
     await page.waitForSelector('input[placeholder="Enter password"]')
