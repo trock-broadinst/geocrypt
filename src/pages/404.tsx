@@ -1,10 +1,10 @@
 import styles from "@/styles/Home.module.css";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = localFont({ src: "../styles/Inter-Regular.ttf" });
 
 export default function Home() {
   return (
@@ -18,11 +18,10 @@ export default function Home() {
           alt="GeoCrypt Logo"
           width={300}
           height={300}
-          priority
         />
         <h1> 404 </h1>
         <h4> Error: page not found </h4>
-        <Link href="/" className={styles.link}>
+        <Link href="/" className={styles.link} passHref>
           Go home
         </Link>
       </main>

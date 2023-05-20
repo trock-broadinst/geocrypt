@@ -1,3 +1,4 @@
+import { TestInfo } from "@playwright/test";
 import { randomBytes } from "crypto";
 
 export function generateRandomString(minlength = 8, maxlength = 100) {
@@ -43,3 +44,20 @@ export function generateRandomString(minlength = 8, maxlength = 100) {
         buffer: randomBytes(size * 1000000),
       }
 }
+
+export const configureSnapshotPath =
+  () =>
+  (testInfo: TestInfo): any => {
+    const originalSnapshotPath = testInfo.snapshotPath;
+
+    testInfo.snapshotPath = (snapshotName) => {
+      const result = originalSnapshotPath
+        .apply(testInfo, [snapshotName])
+        .replace(".txt", ".json")
+        .replace("-chromium", "")
+        .replace("-linux", "")
+        .replace("-darwin", "");
+
+      return result;
+    };
+  };

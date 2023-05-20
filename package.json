@@ -8,7 +8,9 @@
     "serve": "npx serve@latest out",
     "start": "next start",
     "export": "next export",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "docker run -v $PWD:/e2e -w /e2e --rm -it mcr.microsoft.com/playwright:v1.16.2-focal /bin/bash testRun.sh",
+    "generateScreenshots": "docker run -v $PWD:/e2e -w /e2e --rm -it mcr.microsoft.com/playwright:v1.16.2-focal /bin/bash screenshotRun.sh"
   },
   "dependencies": {
     "@types/node": "18.16.1",

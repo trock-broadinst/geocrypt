@@ -1,18 +1,17 @@
 import styles from "@/styles/Home.module.css";
 import "core-js";
-import { Inter } from "next/font/google";
 import Head from "next/head";
 import Image from "next/image";
 // import "core-js/features/set-immediate";
 import FlavorText from "@/utils/flavortext";
-// import CentralModal from "@/utils/central_modal";
 import dynamic from "next/dynamic";
+import localFont from "next/font/local";
 
 const CentralModal = dynamic(() => import("../utils/central_modal"), {
   ssr: false,
 });
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = localFont({ src: "../styles/Inter-Regular.ttf" });
 
 export default function Home() {
   return (
@@ -37,7 +36,6 @@ export default function Home() {
           alt="GeoCrypt Logo"
           width={300}
           height={300}
-          priority
         />
         <h1> GeoCrypt </h1>
         <h4> Encrypt &amp; Decrypt the easy way</h4>
