@@ -1,22 +1,7 @@
 import styles from "@/styles/Home.module.css";
-import PasswordValidator from "password-validator";
 import React, { Dispatch, SetStateAction } from "react";
 
-const passwordSchema = new PasswordValidator();
-passwordSchema
-  .is()
-  .min(8) // Minimum length 8
-  .is()
-  .max(100) // Maximum length 100
-  .has()
-  .uppercase() // Must have uppercase letters
-  .has()
-  .lowercase() // Must have lowercase letters
-  .has()
-  .digits(2) // Must have at least 2 digits
-  .has()
-  .not()
-  .spaces();
+const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,100}$/;
 
 function HandlePassword(props: {
   setPassword: Dispatch<SetStateAction<string | undefined>>;
@@ -52,13 +37,13 @@ function HandlePassword(props: {
       setPassword(undefined);
       return addPwError(["passwords do not match"]);
     }
-    const validatedList = passwordSchema.validate(password, {
-      details: true,
-    });
-    if (typeof validatedList !== "boolean" && validatedList.length > 0) {
+    if (!passwordRegex.test(password)) {
       setPassword(undefined);
-      return addPwError(validatedList.map((x) => x.message));
+      return addPwError([
+        "password must be at least 6 characters long, contain at least one number and one capital letter",
+      ]);
     }
+
     if (passwordErrorZone) passwordErrorZone.innerHTML = "";
     return setPassword(password);
   };

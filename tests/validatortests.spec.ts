@@ -40,7 +40,5 @@ test('Tests matching yet insufficient passwords', async ({ page }) => {
   await page.getByPlaceholder('Enter password').fill('tube');
   await page.getByPlaceholder('Enter password').press('Tab');
   await page.getByPlaceholder('Confirm password').fill('tube'); 
-  await page.getByText('The string should have a minimum length of 8 characters');
-  await page.getByText('The string should have a minimum of 1 uppercase letter');
-  await page.getByText('The string should have a minimum of 2 digits');
+  await page.getByText('password must be at least 6 characters long, contain at least one number and one capital letter');
 });

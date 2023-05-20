@@ -5,9 +5,11 @@ test.use({
     colorScheme: 'light'
 });
 
+// eslint-disable-next-line no-empty-pattern
 test.beforeEach(async ({}, testInfo) => {
+    // eslint-disable-next-line no-param-reassign
     testInfo.snapshotSuffix = '';
-  });
+});
 
 test("basic snapshot", async ({ page }) => {
     await page.goto('http://localhost:3000/');
