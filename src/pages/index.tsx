@@ -7,7 +7,7 @@ import FlavorText from "@/utils/flavortext";
 import dynamic from "next/dynamic";
 import localFont from "next/font/local";
 
-const CentralModal = dynamic(() => import("../utils/central_modal"), {
+const CentralModal = dynamic(() => import("../utils/vault/central_modal"), {
   ssr: false,
 });
 

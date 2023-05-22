@@ -1,7 +1,7 @@
 import styles from "@/styles/Home.module.css";
-import HandlePassword from "@/utils/password";
-import HandleUpload from "@/utils/uploader";
-import { vaultOpenerSize, vfPart1, vfPart2 } from "@/utils/vaultAssembly";
+import HandlePassword from "@/utils/vault/password";
+import HandleUpload from "@/utils/vault/uploader";
+import { vaultOpenerSize, vfPart1, vfPart2 } from "@/utils/vault/vaultAssembly";
 import {
   BlobReader,
   BlobWriter,
@@ -98,19 +98,15 @@ export default function CentralModal() {
       });
   };
 
-  // run encryptAndDownload when enter key is pressed
-  React.useEffect(() => {
-    const handleEnter = (e: KeyboardEvent) => {
-      if (e.key === "Enter") encryptAndDownload();
-    };
-    document.addEventListener("keydown", handleEnter);
-    return () => {
-      document.removeEventListener("keydown", handleEnter);
-    };
-  });
-
   return (
-    <div className={styles.card} style={{ width: "30em" }}>
+    <div
+      className={styles.card}
+      style={{ width: "30em" }}
+      role="presentation"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") encryptAndDownload();
+      }}
+    >
       <br />
       <HandleUpload setFiles={setFiles} files={files} />
       <br />
