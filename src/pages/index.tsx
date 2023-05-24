@@ -39,6 +39,7 @@ export default function Home() {
         />
         <h1> GeoCrypt </h1>
         <h4> Encrypt &amp; Decrypt the easy way</h4>
+        <p>Geocrypt is an open source, free encryption tool that works entirely in your browser, and outputs a shareable HTML file that can be opened in most browsers.</p>
         <br />
         <CentralModal />
         <br />
