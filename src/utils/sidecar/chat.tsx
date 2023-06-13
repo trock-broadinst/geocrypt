@@ -20,10 +20,15 @@ const config = {
       credential: "asperTinO1",
       username: "otrto",
     },
-    // {
-    //     urls: "turn:127.0.0.1:3478",
-    // }
   ],
+};
+
+const calculateSize = (newFiles: File[]) =>
+  newFiles.reduce((a, b) => a + b.size, 0);
+
+const fancyBytes = (bytes: number) => {
+  const size = Math.floor(bytes / 1e6);
+  return size < 1 ? `${Math.floor(bytes / 1e3)}Kb` : `${size}Mb`;
 };
 
 export default function Chat() {
@@ -33,6 +38,9 @@ export default function Chat() {
   );
   const [peerId, setPeerId] = React.useState<string | undefined>();
   const [wasCopied, setWasCopied] = React.useState<boolean>(false);
+  const [downloadProgress, setDownloadProgress] = React.useState<{
+    [key: string]: number;
+  }>({});
   const messageBox = React.useRef<HTMLInputElement>(null);
   const fileBox = React.useRef<HTMLInputElement>(null);
 
@@ -46,15 +54,6 @@ export default function Chat() {
     const message = messageBox.current.value;
 
     if (connection) {
-      if (fileBox.current.files && fileBox.current.files.length > 0) {
-        const file = fileBox.current.files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-          connection.send(reader.result);
-        };
-        reader.readAsDataURL(file);
-        saveMessage(new Message(file.name, true, false, true)); // TODO: prompt on file send
-      }
       if (message) {
         connection.send(message);
         saveMessage(new Message(message, true));
@@ -93,8 +92,8 @@ export default function Chat() {
     });
   };
 
-  const createPeer = (extPeer: string): Peer => {
-    const peer = new Peer(extPeer, { config });
+  const createPeer = (id: string): Peer => {
+    const peer = new Peer(id, { config });
 
     peer.on("connection", (newConnection) => {
       console.log("open", peer.connections);
@@ -161,6 +160,24 @@ export default function Chat() {
           </div>
         </div>
       )}
+
+      {downloadProgress &&
+        downloadProgress.length > 0 && ( // TODO: this is just a temp dl progress display
+          <div className={styles.card}>
+            <h1>Download Progress</h1>
+            <div className={styles.filelistcontainer}>
+              {Object.keys(downloadProgress).map((key) => (
+                <div
+                  key={key}
+                  className={styles.filelistbox}
+                  style={{ textAlign: "center" }}
+                >
+                  {key}: {Math.floor(downloadProgress[key] * 100)}%
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
       <div className={styles.card}>
         <h1>Start chatting</h1>

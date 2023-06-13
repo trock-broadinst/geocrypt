@@ -1,6 +1,8 @@
-- improve password validation, make simpler
 
 - "sidecar" messenger w/ peer encrypted file transfer
+ - infra needed:
+  - TURN: COTURN
+  - BT TRACKER: https://github.com/webtorrent/webtorrent/issues/386
 
 - full volume encryption, maybe with https://www.npmjs.com/package/signal-stream
 - multibrowser tests(off gh only)

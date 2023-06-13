@@ -2,7 +2,7 @@ import styles from "@/styles/Home.module.css";
 import dynamic from "next/dynamic";
 import localFont from "next/font/local";
 
-const DynaChat = dynamic(() => import("../utils/sidecar/chat"), {
+const DynaChat = dynamic(() => import("../utils/sidecar/RTCClient"), {
   loading: () => <p>Loading...</p>,
   ssr: false,
 });

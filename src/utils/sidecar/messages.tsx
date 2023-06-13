@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import styles from "@/styles/Home.module.css";
 import React, { useEffect } from "react";
 import { Message } from "./helpers";

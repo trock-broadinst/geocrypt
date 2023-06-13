@@ -9,17 +9,17 @@ export class Message {
 
     public isSystem: boolean;
 
-    public isFile: boolean;
+    public fileMagnet: string|undefined;
 
     public constructor(
         text: string,
         isSender: boolean,
         isSystem: boolean = false,
-        isFile: boolean = false
+        fileMagnet: string|undefined = undefined
     ) {
         this.text = text;
         this.isSender = isSender;
         this.isSystem = isSystem;
-        this.isFile = isFile;
+        this.fileMagnet = fileMagnet;
     }
 }
