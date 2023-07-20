@@ -70,6 +70,7 @@ function FlavorText() {
         src="https://counter3.optistats.ovh/private/freecounterstat.php?c=z1algp2y5rn67delseb9qqa71wdk9rxf"
         title="web counter"
         alt="web counter"
+        loading="lazy"
       />
     </div>
   );
