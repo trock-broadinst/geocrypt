@@ -66,6 +66,11 @@ function FlavorText() {
       <br />
       copyright 2023
       <Image src="/edisys.svg" alt="edisys logo" width="200" height="100" />
+      <img
+        src="https://counter3.optistats.ovh/private/freecounterstat.php?c=z1algp2y5rn67delseb9qqa71wdk9rxf"
+        title="web counter"
+        alt="web counter"
+      />
     </div>
   );
 }

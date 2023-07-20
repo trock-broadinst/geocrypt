@@ -50,6 +50,7 @@ export const configureSnapshotPath =
   (testInfo: TestInfo): any => {
     const originalSnapshotPath = testInfo.snapshotPath;
 
+    // eslint-disable-next-line no-param-reassign
     testInfo.snapshotPath = (snapshotName) => {
       const result = originalSnapshotPath
         .apply(testInfo, [snapshotName])
