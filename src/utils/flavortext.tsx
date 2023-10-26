@@ -62,6 +62,7 @@ function FlavorText() {
           <li>GeoCrypt stays online</li>
           <li>GeoCrypt gets a new WASM port that allows larger files</li>
         </ul>
+        <p>If you&apos;d like to see more software like this, try <a href="https://paracordchat.com">paracord</a></p>
       </div>
       <br />
       copyright 2023
