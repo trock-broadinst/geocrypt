@@ -22,10 +22,10 @@ jobs:
 
       - name: Build
         run: |
-          npm i -g yarn
-          yarn install
-          yarn build
-          yarn export
+          npm i -g pnpm
+          pnpm i
+          pnpm build
+          pnpm export
           cp CNAME ./out
 
       - name: Deploy
